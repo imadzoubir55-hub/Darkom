@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دار كوم — كراء الشقق و المنازل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --majorelle:#1E4B8C;
+    --majorelle-dark:#123564;
+    --sand:#F3ECDD;
+    --copper:#C17B4F;
+    --zellige-green:#2F6E5B;
+    --ink:#1C1B18;
+    --white:#FFFFFF;
+    --line: rgba(28,27,24,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--sand);
+    color:var(--ink);
+    font-family:'Cairo','Tajawal',sans-serif;
+    min-height:100vh;
+  }
+  [dir="rtl"] body{font-family:'Tajawal','Cairo',sans-serif;}
+  h1,h2,h3,.display{font-family:'Tajawal',sans-serif;font-weight:900;}
+  .star{
+    display:inline-block;width:1em;height:1em;vertical-align:-0.1em;
+  }
+  header{
+    background:var(--majorelle);
+    color:var(--sand);
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;top:0;z-index:20;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+  }
+  .brand{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:900;}
+  .brand svg{width:22px;height:22px;flex-shrink:0;}
+  .header-actions{display:flex;align-items:center;gap:8px;}
+  .lang-toggle{
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.35);
+    color:var(--sand);
+    border-radius:999px;
+    padding:6px 12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .btn-primary{
+    background:var(--copper);
+    color:var(--white);
+    border:none;
+    border-radius:10px;
+    padding:9px 14px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    font-family:inherit;
+    white-space:nowrap;
+  }
+  .btn-primary:active{transform:translateY(1px);}
+  .hero{
+    background:linear-gradient(160deg,var(--majorelle) 0%, var(--majorelle-dark) 100%);
+    color:var(--sand);
+    padding:34px 18px 46px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-stars{
+    position:absolute;inset:0;opacity:0.08;
+    background-image:
+      radial-gradient(circle at 20% 30%, transparent 0 3px, var(--sand) 3px 4px, transparent 4px),
+      radial-gradient(circle at 80% 20%, transparent 0 3px, var(--sand) 3px 4px, transparent 4px),
+      radial-gradient(circle at 60% 80%, transparent 0 3px, var(--sand) 3px 4px, transparent 4px);
+    pointer-events:none;
+  }
+  .hero h1{font-size:26px;margin:0 0 8px;position:relative;line-height:1.35;}
+  .hero p{font-size:14.5px;opacity:0.88;margin:0 0 18px;position:relative;max-width:520px;}
+  .search-row{
+    display:flex;gap:8px;position:relative;
+  }
+  .search-row input{
+    flex:1;
+    border:none;
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+  }
+  .search-row button{
+    background:var(--copper);
+    color:#fff;border:none;border-radius:10px;
+    padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
+  }
+  main{max-width:920px;margin:0 auto;padding:18px;}
+  .filters{
+    display:flex;gap:8px;flex-wrap:wrap;
+    align-items:center;justify-content:space-between;
+    margin:-22px 0 18px;
+    position:relative;
+  }
+  .filter-pills{display:flex;gap:6px;background:var(--white);padding:5px;border-radius:12px;box-shadow:0 4px 16px rgba(28,27,24,0.1);}
+  .pill{
+    border:none;background:transparent;border-radius:9px;
+    padding:8px 14px;font-size:13px;font-weight:700;color:var(--ink);
+    cursor:pointer;font-family:inherit;
+  }
+  .pill.active{background:var(--majorelle);color:var(--sand);}
+  .count-tag{font-size:12.5px;color:#6b675f;font-weight:600;margin-top:8px;}
+  .grid{
+    display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px;
+  }
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr;}}
+  @media(min-width:920px){.grid{grid-template-columns:1fr 1fr 1fr;}}
+  .card{
+    background:var(--white);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(28,27,24,0.09);
+    border:1px solid var(--line);
+    display:flex;flex-direction:column;
+  }
+  .card-photo{
+    height:170px;width:100%;object-fit:cover;background:#ddd6c4;
+    display:block;
+  }
+  .card-photo-empty{
+    height:170px;display:flex;align-items:center;justify-content:center;
+    background:repeating-linear-gradient(45deg,#e7e0cf,#e7e0cf 10px,#ded6c2 10px,#ded6c2 20px);
+    color:#8a8470;font-size:12px;font-weight:700;
+  }
+  .card-body{padding:12px 14px 14px;position:relative;flex:1;display:flex;flex-direction:column;gap:6px;}
+  .badge-row{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+  .duration-badge{
+    font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;
+    color:#fff;flex-shrink:0;
+  }
+  .duration-badge.monthly{background:var(--majorelle);}
+  .duration-badge.daily{background:var(--zellige-green);}
+  .price{font-size:19px;font-weight:900;color:var(--copper);}
+  .price small{font-size:12px;font-weight:700;color:#8a8470;}
+  .addr{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px;}
+  .owner-name{font-size:12px;color:#8a8470;font-weight:600;}
+  .card-actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;}
+  .card-actions a{
+    flex:1;text-align:center;border-radius:9px;padding:9px 6px;font-size:12.5px;font-weight:700;
+    text-decoration:none;font-family:inherit;
+  }
+  .call-btn{background:var(--majorelle);color:#fff;}
+  .wa-btn{background:var(--zellige-green);color:#fff;}
+  .delete-mine-row{margin-top:6px;}
+  .delete-mine-btn{
+    width:100%;background:none;border:1px solid var(--line);color:#a33b2b;
+    border-radius:9px;padding:7px 6px;font-size:11.5px;font-weight:700;
+    font-family:inherit;cursor:pointer;
+  }
+  .card-photo-wrap{position:relative;height:170px;overflow:hidden;background:#ddd6c4;}
+  .card-photo-wrap .card-photo{height:170px;}
+  .photo-nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    background:rgba(28,27,24,0.45);color:#fff;border:none;border-radius:999px;
+    width:26px;height:26px;font-size:12px;cursor:pointer;display:flex;
+    align-items:center;justify-content:center;
+  }
+  .photo-nav.prev{left:8px;}
+  .photo-nav.next{right:8px;}
+  .photo-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:4px;}
+  .photo-dots .dot{width:5px;height:5px;border-radius:999px;background:rgba(255,255,255,0.55);}
+  .photo-dots .dot.active{background:#fff;}
+  .photo-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .photo-thumb-item{position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;}
+  .photo-thumb-item img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-thumb-remove{
+    position:absolute;top:2px;left:2px;background:rgba(28,27,24,0.65);color:#fff;
+    border:none;border-radius:999px;width:18px;height:18px;font-size:11px;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .empty-state{
+    text-align:center;padding:50px 20px;color:#6b675f;
+  }
+  .empty-state .star-big{width:34px;height:34px;color:var(--copper);margin-bottom:10px;}
+  .fab{
+    position:fixed;bottom:18px;left:18px;z-index:30;
+    background:var(--copper);color:#fff;border:none;border-radius:999px;
+    width:56px;height:56px;font-size:26px;box-shadow:0 6px 18px rgba(0,0,0,0.25);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(18,17,15,0.55);z-index:40;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  @media(min-width:640px){.modal-overlay{align-items:center;}}
+  .modal{
+    background:var(--sand);width:100%;max-width:480px;
+    border-radius:20px 20px 0 0;padding:20px 18px 26px;
+    max-height:92vh;overflow-y:auto;
+  }
+  @media(min-width:640px){.modal{border-radius:18px;}}
+  .modal h2{font-size:19px;margin:0 0 4px;}
+  .modal .sub{font-size:12.5px;color:#6b675f;margin:0 0 16px;}
+  .field{margin-bottom:13px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px;}
+  .field input, .field select{
+    width:100%;border:1px solid var(--line);border-radius:10px;
+    padding:11px 12px;font-size:14px;font-family:inherit;background:#fff;outline:none;
+  }
+  .field input:focus,.field select:focus{border-color:var(--majorelle);}
+  .photo-input-wrap{
+    border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;
+    cursor:pointer;background:#fff;
+  }
+  .photo-preview{width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-top:10px;}
+  .duration-toggle{display:flex;gap:8px;}
+  .duration-toggle button{
+    flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;
+    padding:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .duration-toggle button.active{background:var(--majorelle);color:#fff;border-color:var(--majorelle);}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .btn-ghost{
+    flex:1;background:transparent;border:1px solid var(--line);border-radius:10px;
+    padding:12px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px;
+  }
+  .btn-submit{flex:2;background:var(--copper);color:#fff;border:none;border-radius:10px;
+    padding:12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:14px;}
+  .btn-submit:disabled{opacity:0.6;}
+  .error-text{color:#b3392b;font-size:12px;margin-top:4px;}
+  footer{text-align:center;padding:30px 18px 90px;color:#8a8470;font-size:12.5px;}
+  .toast{
+    position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:10px 18px;border-radius:999px;
+    font-size:13px;font-weight:700;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,0.3);
+  }
+  .card.featured{border:2px solid var(--copper);box-shadow:0 6px 20px rgba(193,123,79,0.25);}
+  .featured-flag{
+    position:absolute;top:10px;inset-inline-start:10px;
+    background:var(--copper);color:#fff;font-size:10.5px;font-weight:800;
+    padding:3px 9px;border-radius:999px;z-index:2;
+  }
+  .card{position:relative;}
+  .checkbox-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;background:#fff;
+    border:1px solid var(--line);border-radius:10px;padding:11px 12px;}
+  .checkbox-row input{margin-top:2px;flex-shrink:0;}
+  .checkbox-row.locked{color:#8a8470;}
+  .lock-note{font-size:11.5px;color:var(--copper);font-weight:700;margin-top:4px;display:block;}
+  .footer-link{background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;
+    font-size:12.5px;font-family:inherit;padding:0;}
+  .benefit-list{margin:0 0 16px;padding:0;list-style:none;}
+  .benefit-list li{font-size:13.5px;padding:6px 0;border-bottom:1px solid var(--line);}
+  .benefit-list li:last-child{border-bottom:none;}
+  .price-tag-big{font-size:26px;font-weight:900;color:var(--copper);margin:6px 0 14px;}
+  .price-tag-big small{font-size:13px;color:#6b675f;font-weight:700;}
+  .admin-list{margin-top:10px;}
+  .admin-row{display:flex;align-items:center;justify-content:space-between;gap:8px;
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;font-size:13px;}
+  .admin-row .actions{display:flex;gap:6px;}
+  .admin-row button{border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .approve-btn{background:var(--zellige-green);color:#fff;}
+  .reject-btn{background:#b3392b;color:#fff;}
+  .admin-section-title{font-size:13px;font-weight:800;margin:16px 0 6px;color:var(--majorelle);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand" id="brandName">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.2 6.8H21l-5.4 4.2 2.1 6.8L12 13.6l-5.7 4.2 2.1-6.8L3 6.8h6.8L12 0z"/></svg>
+    <span id="brandText">دار كوم</span>
+  </div>
+  <div class="header-actions">
+    <button class="lang-toggle" id="langToggle">FR</button>
+    <button class="btn-primary" id="openAddBtn">+ <span id="addBtnText">عرض جديد</span></button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-stars"></div>
+  <h1 id="heroTitle">الدرب ديالك، كراء بسهولة</h1>
+  <p id="heroSub">شقق و منازل للكراء الشهري أو اليومي، من عند المالكين مباشرة — بلا وسيط.</p>
+  <div class="search-row">
+    <input type="text" id="searchInput" placeholder="فين بغيتي تسكن؟ (الدرب، الحي...)" list="citySuggestions" autocomplete="off">
+    <datalist id="citySuggestions"></datalist>
+    <button id="searchBtn">بحث</button>
+  </div>
+</div>
+
+<main>
+  <div class="filters">
+    <div class="filter-pills">
+      <button class="pill active" data-filter="all">الكل</button>
+      <button class="pill" data-filter="monthly">شهري</button>
+      <button class="pill" data-filter="daily">يومي</button>
+    </div>
+    <select id="cityFilter" class="pill" style="background:var(--white);box-shadow:0 4px 16px rgba(28,27,24,0.1);border:none;">
+      <option value="">كل المدن</option>
+    </select>
+  </div>
+  <div class="count-tag" id="countTag">...</div>
+  <div id="listGrid" class="grid"></div>
+</main>
+
+<footer>
+  <button class="footer-link" id="adminLinkBtn" style="margin-top:8px;"><span id="adminLinkText">لوحة التحكم</span></button>
+</footer>
+
+<button class="fab" id="fabAdd">+</button>
+
+<div class="modal-overlay" id="modalOverlay" style="display:none;">
+  <div class="modal">
+    <h2 id="modalTitle">نشر عرض جديد</h2>
+    <p class="sub" id="modalSub">عمر المعلومات وصورة الشقة، غادي يبان العرض ديالك للجميع فالموقع.</p>
+
+    <div class="field">
+      <label id="lblPhoto">صور الشقة</label>
+      <div class="photo-input-wrap" id="photoWrap">
+        <span id="photoHint">اضغط لاختيار الصور</span>
+        <input type="file" accept="image/*" id="photoFile" multiple style="display:none;">
+      </div>
+      <div class="photo-thumbs" id="photoThumbs"></div>
+    </div>
+
+    <div class="field">
+      <label id="lblName">الاسم</label>
+      <input type="text" id="fName" placeholder="مثال: محمد">
+    </div>
+
+    <div class="field">
+      <label id="lblPhone">رقم الهاتف</label>
+      <input type="tel" id="fPhone" placeholder="06XXXXXXXX">
+    </div>
+
+    <div class="field">
+      <label id="lblCity">المدينة</label>
+      <select id="fCity">
+        <option value="" id="fCityPlaceholder"></option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label id="lblAddr">الدرب / الحي</label>
+      <input type="text" id="fAddr" placeholder="مثال: حي الداخلة، الدرب 3">
+    </div>
+
+    <div class="field">
+      <label id="lblPrice">الثمن (بالدرهم)</label>
+      <input type="number" id="fPrice" placeholder="مثال: 2500">
+    </div>
+
+    <div class="field">
+      <label id="lblDuration">مدة الكراء</label>
+      <div class="duration-toggle">
+        <button type="button" class="dur-opt active" data-dur="monthly" id="durMonthlyBtn">شهري</button>
+        <button type="button" class="dur-opt" data-dur="daily" id="durDailyBtn">يومي</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="checkbox-row" id="featuredRow">
+        <input type="checkbox" id="fFeatured">
+        <span id="featuredLabelText">اجعل هذا العرض مميز (يبان فأول القائمة)</span>
+      </label>
+      <span class="lock-note" id="featuredLockNote" style="display:none;"></span>
+    </div>
+
+    <div class="error-text" id="formError" style="display:none;"></div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" id="cancelBtn">إلغاء</button>
+      <button class="btn-submit" id="submitBtn">نشر</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="subOverlay" style="display:none;">
+  <div class="modal">
+    <h2 id="subTitle">اشترك و انشر بلا حدود</h2>
+    <div class="price-tag-big" id="subPrice">150 د.م <small id="subPriceUnit">/ الشهر</small></div>
+    <ul class="benefit-list" id="subBenefits">
+      <li>نشر عروض بلا حدود</li>
+      <li>عروض مميزة فأول القائمة</li>
+      <li>بادج "موثق" على كل عروضك</li>
+    </ul>
+    <p class="error-text" id="subLimitNote" style="display:none;"></p>
+    <div class="field">
+      <label id="subPhoneLbl">رقم الهاتف ديالك</label>
+      <input type="tel" id="subPhone" placeholder="06XXXXXXXX">
+    </div>
+    <p class="sub" id="subInstructions" style="margin-top:-4px;">بعد الطلب، غادي نتواصلو معاك على واتساب باش نأكدو الدفع ونفعلو الاشتراك ديالك.</p>
+    <div class="error-text" id="subError" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="subCancelBtn">إلغاء</button>
+      <button class="btn-submit" id="subSubmitBtn">طلب الاشتراك</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="adminOverlay" style="display:none;">
+  <div class="modal">
+    <h2 id="adminModalTitle">لوحة التحكم</h2>
+    <div id="adminLoginBox">
+      <div class="field">
+        <label id="adminPassLbl">كلمة السر</label>
+        <input type="password" id="adminPassInput" placeholder="••••••">
+      </div>
+      <div class="error-text" id="adminError" style="display:none;"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="adminCancelBtn">إلغاء</button>
+        <button class="btn-submit" id="adminLoginBtn">دخول</button>
+      </div>
+    </div>
+    <div id="adminPanelBox" style="display:none;">
+      <div class="admin-section-title" id="pendingTitle">طلبات الاشتراك</div>
+      <div class="admin-list" id="pendingList"></div>
+      <div class="admin-section-title" id="activeSubsTitle">المشتركين النشيطين</div>
+      <div class="admin-list" id="activeSubsList"></div>
+      <div class="admin-section-title" id="listingsTitle">العروض المنشورة</div>
+      <div class="admin-list" id="listingsMgmtList"></div>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="adminCloseBtn">إغلاق</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, getDocs, doc, setDoc, updateDoc, deleteDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+// ============================================================
+// TODO(Imad): بدل هاد المعلومات بالمعلومات ديال Firebase ديالك
+// (خدها من Firebase Console > Project settings > Your apps)
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyBRxOect_7kB95goc6f1ZF3ZP1lESIkKAQ",
+  authDomain: "darkom-9788c.firebaseapp.com",
+  projectId: "darkom-9788c",
+  storageBucket: "darkom-9788c.firebasestorage.app",
+  messagingSenderId: "770038187877",
+  appId: "1:770038187877:web:74a16ff67540b8b207c38c"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+// Firestore collections used: 'listings', 'subscriptions', 'requests'
+// TODO(Imad): 1) غيّر كلمة السر هادي. 2) دخل رقم الواتساب ديالك هنا باش يبان للناس فرسالة التأكيد.
+const ADMIN_PASSWORD = 'eddarb2026';
+const ADMIN_WHATSAPP = '212717389598';
+const FREE_LISTING_LIMIT = 2;
+const SUB_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+
+let LANG = 'ar';
+let currentFilter = 'all';
+let currentCityFilter = '';
+let searchQuery = '';
+let selectedDuration = 'monthly';
+let photoDataUrls = [];
+const MAX_PHOTOS = 6;
+let listings = [];
+let subscriptions = {};
+let requests = [];
+
+const STR = {
+  ar:{
+    brand:'دار كوم', addBtn:'إعلان جديد',
+    heroTitle:'حيّك، إيجار بسهولة',
+    heroSub:'شقق ومنازل للإيجار الشهري أو اليومي، مباشرة من المالكين — بلا وسيط.',
+    searchPh:'أين تريد أن تسكن؟ (الحي، الشارع...)', searchBtn:'بحث',
+    pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي',
+    countSuffix:(n)=> n + ' إعلان متاح',
+    modalTitle:'نشر إعلان جديد', modalSub:'أدخل المعلومات وصور الشقة، وسيظهر إعلانك للجميع في الموقع.',
+    lblPhoto:'صور الشقة', photoHint:'اضغط لاختيار الصور',
+    lblName:'الاسم', phName:'مثال: محمد', errName:'يجب كتابة الاسم',
+    lblPhone:'رقم الهاتف', phPhone:'06XXXXXXXX',
+    lblAddr:'الحي / الشارع', phAddr:'مثال: حي الداخلة، الشارع 3',
+    lblCity:'المدينة', phCity:'مثال: الدار البيضاء، أكادير، فاس...',
+    allCities:'كل المدن',
+    errCity:'يجب كتابة المدينة',
+    lblPrice:'السعر (بالدرهم)', phPrice:'مثال: 2500',
+    lblDuration:'مدة الإيجار',
+    cancel:'إلغاء', submit:'نشر', submitting:'جارٍ النشر...',
+    emptyTitle:'لا توجد إعلانات حاليًا',
+    emptySub:'كن أول من ينشر إعلانًا لشقتك',
+    call:'اتصال', wa:'واتساب',
+    footer:'صُنع بحب في أكادير ✦',
+    errPhone:'يجب كتابة رقم الهاتف',
+    errAddr:'يجب كتابة الحي أو الشارع',
+    errPrice:'يجب كتابة السعر',
+    perMonth:'/ الشهر', perDay:'/ اليوم',
+    toastPublished:'تم نشر الإعلان بنجاح! 🎉',
+    langBtn:'FR',
+    adminLink:'لوحة التحكم',
+    featuredLabel:'اجعل هذا الإعلان مميزًا (يظهر في مقدمة القائمة)',
+    featuredLocked:'هذه الخدمة للمشتركين فقط — اضغط للاشتراك',
+    featuredFlag:'مميز',
+    limitReached:'لقد نشرت إعلانك المجاني. لنشر إعلانات أخرى، يجب الاشتراك.',
+    subTitle:'اشترك وانشر بلا حدود',
+    subPriceUnit:'/ الشهر',
+    subBenefit1:'نشر إعلانات بلا حدود',
+    subBenefit2:'إعلانات مميزة في مقدمة القائمة',
+    subBenefit3:'شارة "موثّق" على جميع إعلاناتك',
+    subPhoneLbl:'رقم هاتفك',
+    subInstructions:'بعد إرسال الطلب، سنتواصل معك عبر واتساب لتأكيد الدفع وتفعيل اشتراكك.',
+    subErrPhone:'يجب كتابة رقم الهاتف',
+    subCancel:'إلغاء',
+    subSubmit:'طلب الاشتراك',
+    subSent:'تم استلام طلبك! سنتواصل معك قريبًا. 📩',
+    adminModalTitle:'لوحة التحكم',
+    adminPassLbl:'كلمة المرور',
+    adminWrong:'كلمة المرور غير صحيحة',
+    adminLoginBtn:'دخول',
+    pendingTitle:'طلبات الاشتراك',
+    activeSubsTitle:'المشتركون النشطون',
+    noPending:'لا توجد طلبات حاليًا',
+    noActive:'لا يوجد أي مشترك حاليًا',
+    approve:'قبول',
+    reject:'رفض',
+    expiresLabel:'ينتهي في',
+    adminClose:'إغلاق',
+    adminCancel:'إلغاء',
+    listingsTitle:'الإعلانات المنشورة',
+    noListings:'لا يوجد أي إعلان حاليًا',
+    deleteListing:'حذف',
+    confirmDeleteListing:'هل أنت متأكد من رغبتك في حذف هذا الإعلان؟',
+    listingDeleted:'تم حذف الإعلان 🗑️',
+    deleteMine:'حذف الإعلان',
+    deleteMinePrompt:'أدخل رقم الهاتف الذي استعملته عند النشر لتأكيد الحذف',
+    deleteMineWrongPhone:'رقم الهاتف غير مطابق',
+    deleteMineSuccess:'تم حذف الإعلان بنجاح 🗑️'
+  },
+  fr:{
+    brand:'Dar Kom', addBtn:'Nouvelle annonce',
+    heroTitle:"Votre quartier, votre location",
+    heroSub:"Appartements et maisons à louer, mensuel ou journalier — directement chez les propriétaires.",
+    searchPh:'Où voulez-vous habiter ? (quartier...)', searchBtn:'Chercher',
+    pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier',
+    countSuffix:(n)=> n + ' annonce(s) disponible(s)',
+    modalTitle:'Publier une annonce', modalSub:"Remplissez les infos et la photo, votre annonce sera visible par tous.",
+    lblPhoto:"Photo du logement", photoHint:'Cliquez pour choisir une photo',
+    lblName:'Nom', phName:'ex : Mohamed', errName:'Le nom est requis',
+    lblPhone:'Numéro de téléphone', phPhone:'06XXXXXXXX',
+    lblAddr:'Quartier / Rue', phAddr:'ex : Hay Dakhla, Derb 3',
+    lblCity:'Ville', phCity:'ex : Casablanca, Agadir, Fès...',
+    allCities:'Toutes les villes',
+    errCity:'La ville est requise',
+    lblPrice:'Prix (en dirhams)', phPrice:'ex : 2500',
+    lblDuration:'Durée de location',
+    cancel:'Annuler', submit:'Publier', submitting:'Publication...',
+    emptyTitle:"Aucune annonce pour l'instant",
+    emptySub:'Soyez le premier à publier votre logement',
+    call:'Appeler', wa:'WhatsApp',
+    footer:'Fait avec ❤ à Agadir ✦',
+    errPhone:'Le numéro de téléphone est requis',
+    errAddr:'Le quartier / la rue est requis',
+    errPrice:'Le prix est requis',
+    perMonth:'/ mois', perDay:'/ jour',
+    toastPublished:'Annonce publiée ! 🎉',
+    langBtn:'AR',
+    adminLink:'Espace admin',
+    featuredLabel:"Mettre en avant cette annonce (en haut de la liste)",
+    featuredLocked:"Réservé aux abonnés — cliquez pour vous abonner",
+    featuredFlag:'En avant',
+    limitReached:"Vous avez publié votre annonce gratuite. Pour en publier d'autres, abonnez-vous.",
+    subTitle:'Abonnez-vous, publiez sans limite',
+    subPriceUnit:'/ mois',
+    subBenefit1:'Annonces illimitées',
+    subBenefit2:'Annonces mises en avant en tête de liste',
+    subBenefit3:'Badge "vérifié" sur toutes vos annonces',
+    subPhoneLbl:'Votre numéro de téléphone',
+    subInstructions:"Après la demande, nous vous contacterons sur WhatsApp pour confirmer le paiement et activer votre abonnement.",
+    subErrPhone:'Le numéro de téléphone est requis',
+    subCancel:'Annuler',
+    subSubmit:"Demander l'abonnement",
+    subSent:'Demande reçue ! Nous vous contactons bientôt. 📩',
+    adminModalTitle:'Espace admin',
+    adminPassLbl:'Mot de passe',
+    adminWrong:'Mot de passe incorrect',
+    adminLoginBtn:'Connexion',
+    pendingTitle:'Demandes en attente',
+    activeSubsTitle:'Abonnés actifs',
+    noPending:'Aucune demande pour le moment',
+    noActive:"Aucun abonné pour le moment",
+    approve:'Approuver',
+    reject:'Refuser',
+    expiresLabel:"Expire le",
+    adminClose:'Fermer',
+    adminCancel:'Annuler',
+    listingsTitle:'Annonces publiées',
+    noListings:'Aucune annonce pour le moment',
+    deleteListing:'Supprimer',
+    confirmDeleteListing:'Voulez-vous vraiment supprimer cette annonce ?',
+    listingDeleted:'Annonce supprimée 🗑️',
+    deleteMine:"Supprimer l'annonce",
+    deleteMinePrompt:'Entrez le numéro de téléphone utilisé lors de la publication pour confirmer',
+    deleteMineWrongPhone:'Numéro de téléphone incorrect',
+    deleteMineSuccess:'Annonce supprimée avec succès 🗑️'
+  }
+};
+
+function t(key){ return STR[LANG][key]; }
+
+function applyLangToDOM(){
+  document.documentElement.lang = LANG === 'ar' ? 'ar' : 'fr';
+  document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('brandText').textContent = t('brand');
+  document.getElementById('addBtnText').textContent = t('addBtn');
+  document.getElementById('heroTitle').textContent = t('heroTitle');
+  document.getElementById('heroSub').textContent = t('heroSub');
+  document.getElementById('searchInput').placeholder = t('searchPh');
+  document.getElementById('searchBtn').textContent = t('searchBtn');
+  const pills = document.querySelectorAll('.pill');
+  pills[0].textContent = t('pillAll');
+  pills[1].textContent = t('pillMonthly');
+  pills[2].textContent = t('pillDaily');
+  document.getElementById('modalTitle').textContent = t('modalTitle');
+  document.getElementById('modalSub').textContent = t('modalSub');
+  document.getElementById('lblPhoto').textContent = t('lblPhoto');
+  document.getElementById('photoHint').textContent = t('photoHint');
+  document.getElementById('lblName').textContent = t('lblName');
+  document.getElementById('fName').placeholder = t('phName');
+  document.getElementById('lblPhone').textContent = t('lblPhone');
+  document.getElementById('fPhone').placeholder = t('phPhone');
+  document.getElementById('lblAddr').textContent = t('lblAddr');
+  document.getElementById('fAddr').placeholder = t('phAddr');
+  document.getElementById('lblCity').textContent = t('lblCity');
+  populateCitySelect();
+  populateCityDatalist();
+  document.getElementById('cityFilter').options[0].textContent = t('allCities');
+  document.getElementById('lblPrice').textContent = t('lblPrice');
+  document.getElementById('fPrice').placeholder = t('phPrice');
+  document.getElementById('lblDuration').textContent = t('lblDuration');
+  document.getElementById('durMonthlyBtn').textContent = t('pillMonthly');
+  document.getElementById('durDailyBtn').textContent = t('pillDaily');
+  document.getElementById('cancelBtn').textContent = t('cancel');
+  document.getElementById('submitBtn').textContent = t('submit');
+  document.getElementById('langToggle').textContent = t('langBtn');
+  document.getElementById('adminLinkText').textContent = t('adminLink');
+  document.getElementById('featuredLabelText').textContent = t('featuredLabel');
+  document.getElementById('subTitle').textContent = t('subTitle');
+  document.getElementById('subPriceUnit').textContent = t('subPriceUnit');
+  const bList = document.getElementById('subBenefits').querySelectorAll('li');
+  bList[0].textContent = t('subBenefit1');
+  bList[1].textContent = t('subBenefit2');
+  bList[2].textContent = t('subBenefit3');
+  document.getElementById('subPhoneLbl').textContent = t('subPhoneLbl');
+  document.getElementById('subInstructions').textContent = t('subInstructions');
+  document.getElementById('subCancelBtn').textContent = t('subCancel');
+  document.getElementById('subSubmitBtn').textContent = t('subSubmit');
+  document.getElementById('adminModalTitle').textContent = t('adminModalTitle');
+  document.getElementById('adminPassLbl').textContent = t('adminPassLbl');
+  document.getElementById('adminLoginBtn').textContent = t('adminLoginBtn');
+  document.getElementById('pendingTitle').textContent = t('pendingTitle');
+  document.getElementById('activeSubsTitle').textContent = t('activeSubsTitle');
+  document.getElementById('adminCloseBtn').textContent = t('adminClose');
+  document.getElementById('adminCancelBtn').textContent = t('adminCancel');
+  renderList();
+}
+
+document.getElementById('langToggle').addEventListener('click', ()=>{
+  LANG = LANG === 'ar' ? 'fr' : 'ar';
+  applyLangToDOM();
+});
+
+// ---- Storage ----
+function initListingsListener(){
+  try{
+    onSnapshot(collection(db, 'listings'), (snap)=>{
+      listings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderList();
+      if(adminUnlocked && adminOverlay.style.display === 'flex'){
+        renderAdminPanel();
+      }
+    }, (err)=>{
+      console.error('listings listener error', err);
+    });
+  }catch(e){
+    console.error(e);
+  }
+}
+
+async function loadSubs(){
+  try{
+    const snap = await getDocs(collection(db, 'subscriptions'));
+    subscriptions = {};
+    snap.docs.forEach(d => { subscriptions[d.id] = d.data(); });
+  }catch(e){ subscriptions = {}; }
+}
+async function setSubscription(phoneKey, data){
+  try{ await setDoc(doc(db, 'subscriptions', phoneKey), data); return true; }
+  catch(e){ return false; }
+}
+async function loadRequests(){
+  try{
+    const snap = await getDocs(collection(db, 'requests'));
+    requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }catch(e){ requests = []; }
+}
+async function addRequest(reqData){
+  try{ const ref = await addDoc(collection(db, 'requests'), reqData); return ref.id; }
+  catch(e){ return null; }
+}
+async function updateRequestStatus(reqId, status){
+  try{ await updateDoc(doc(db, 'requests', reqId), { status }); return true; }
+  catch(e){ return false; }
+}
+function normalizePhone(p){ return (p||'').replace(/[^0-9]/g,''); }
+function toWhatsAppNumber(phone){
+  let digits = normalizePhone(phone);
+  if(digits.startsWith('0')) digits = '212' + digits.slice(1);
+  else if(!digits.startsWith('212')) digits = '212' + digits;
+  return digits;
+}
+function isSubscribed(phone){
+  const key = normalizePhone(phone);
+  const s = subscriptions[key];
+  return !!(s && s.active && s.expiresAt > Date.now());
+}
+
+// ---- Rendering ----
+function renderList(){
+  populateCityFilter();
+  const grid = document.getElementById('listGrid');
+  let items = listings.slice().reverse();
+  if(currentFilter !== 'all'){
+    items = items.filter(it => it.duration === currentFilter);
+  }
+  if(currentCityFilter){
+    items = items.filter(it => it.city === currentCityFilter);
+  }
+  if(searchQuery.trim()){
+    const q = searchQuery.trim().toLowerCase();
+    items = items.filter(it => (it.address||'').toLowerCase().includes(q) || (it.city||'').toLowerCase().includes(q));
+  }
+  items.sort((a,b) => (b.featured?1:0) - (a.featured?1:0));
+  document.getElementById('countTag').textContent = t('countSuffix')(items.length);
+
+  if(items.length === 0){
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <div class="star-big">✦</div>
+        <h3 style="margin:0 0 6px;">${t('emptyTitle')}</h3>
+        <p style="margin:0;">${t('emptySub')}</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = items.map(it => {
+    const photos = Array.isArray(it.photos) && it.photos.length ? it.photos : (it.photo ? [it.photo] : []);
+    const photoHtml = photos.length
+      ? `<div class="card-photo-wrap" data-listingid="${it.id}" data-idx="0">
+           <img class="card-photo" src="${photos[0]}" alt="">
+           ${photos.length > 1 ? `
+             <button type="button" class="photo-nav prev" data-dir="-1">&#10094;</button>
+             <button type="button" class="photo-nav next" data-dir="1">&#10095;</button>
+             <div class="photo-dots">${photos.map((_,i)=>`<span class="dot ${i===0?'active':''}"></span>`).join('')}</div>
+           ` : ''}
+         </div>`
+      : `<div class="card-photo-empty">—</div>`;
+    const durLabel = it.duration === 'monthly' ? t('pillMonthly') : t('pillDaily');
+    const durClass = it.duration === 'monthly' ? 'monthly' : 'daily';
+    const perLabel = it.duration === 'monthly' ? t('perMonth') : t('perDay');
+    const waNumber = toWhatsAppNumber(it.phone);
+    const featuredFlag = it.featured ? `<span class="featured-flag">✦ ${t('featuredFlag')}</span>` : '';
+    return `
+      <div class="card ${it.featured ? 'featured' : ''}">
+        ${featuredFlag}
+        ${photoHtml}
+        <div class="card-body">
+          <div class="badge-row">
+            <div class="addr">📍 ${escapeHtml(it.address)}${it.city ? ', ' + escapeHtml(it.city) : ''}</div>
+            <span class="duration-badge ${durClass}">${durLabel}</span>
+          </div>
+          ${it.name ? `<div class="owner-name">👤 ${escapeHtml(it.name)}</div>` : ''}
+          <div class="price">${it.price} <small>د.م ${perLabel}</small></div>
+          <div class="card-actions">
+            <a class="call-btn" href="tel:${it.phone}">${t('call')}</a>
+            <a class="wa-btn" href="https://wa.me/${waNumber}" target="_blank" rel="noopener">${t('wa')}</a>
+          </div>
+          <div class="delete-mine-row">
+            <button type="button" class="delete-mine-btn" data-listingid="${it.id}">${t('deleteMine')}</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.card-photo-wrap').forEach(wrap=>{
+    const listing = listings.find(l => l.id === wrap.dataset.listingid);
+    const photos = listing ? (Array.isArray(listing.photos) && listing.photos.length ? listing.photos : (listing.photo ? [listing.photo] : [])) : [];
+    wrap.querySelectorAll('.photo-nav').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        if(!photos.length) return;
+        let idx = parseInt(wrap.dataset.idx, 10);
+        idx = (idx + parseInt(btn.dataset.dir, 10) + photos.length) % photos.length;
+        wrap.dataset.idx = idx;
+        wrap.querySelector('img').src = photos[idx];
+        wrap.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i === idx));
+      });
+    });
+  });
+
+  grid.querySelectorAll('.delete-mine-btn').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.listingid;
+      const listing = listings.find(l => l.id === id);
+      if(!listing) return;
+      const inputPhone = prompt(t('deleteMinePrompt'));
+      if(inputPhone === null) return;
+      if(normalizePhone(inputPhone) !== normalizePhone(listing.phone)){
+        showToast(t('deleteMineWrongPhone'));
+        return;
+      }
+      btn.disabled = true;
+      try{
+        await deleteDoc(doc(db, 'listings', id));
+        showToast(t('deleteMineSuccess'));
+      }catch(e){
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+const MOROCCO_CITIES = [
+  ['الدار البيضاء','Casablanca'], ['الرباط','Rabat'], ['فاس','Fès'], ['مراكش','Marrakech'],
+  ['طنجة','Tanger'], ['أكادير','Agadir'], ['مكناس','Meknès'], ['وجدة','Oujda'],
+  ['القنيطرة','Kénitra'], ['تطوان','Tétouan'], ['آسفي','Safi'], ['المحمدية','Mohammedia'],
+  ['الجديدة','El Jadida'], ['بني ملال','Béni Mellal'], ['خريبكة','Khouribga'],
+  ['تازة','Taza'], ['سطات','Settat'], ['برشيد','Berrechid'], ['الناظور','Nador'],
+  ['العرائش','Larache'], ['خنيفرة','Khénifra'], ['ورزازات','Ouarzazate'],
+  ['الصويرة','Essaouira'], ['قلعة السراغنة','Kelaat Sraghna'], ['الفقيه بن صالح','Fquih Ben Salah'],
+  ['تارودانت','Taroudant'], ['العيون','Laâyoune'], ['الداخلة','Dakhla'],
+  ['بركان','Berkane'], ['تاوريرت','Taourirt'], ['اليوسفية','Youssoufia'],
+  ['وادي زم','Oued Zem'], ['سيدي قاسم','Sidi Kacem'], ['سيدي سليمان','Sidi Slimane'],
+  ['سيدي بنور','Sidi Bennour'], ['أزيلال','Azilal'], ['الرشيدية','Errachidia'],
+  ['ميدلت','Midelt'], ['تنغير','Tinghir'], ['زاكورة','Zagora'], ['كلميم','Guelmim'],
+  ['طانطان','Tan-Tan'], ['السمارة','Smara'], ['بوجدور','Boujdour'],
+  ['إفران','Ifrane'], ['صفرو','Séfrou'], ['وزان','Ouezzane'], ['شفشاون','Chefchaouen'],
+  ['الفنيدق','Fnideq'], ['أصيلة','Asilah'], ['القصر الكبير','Ksar El Kébir'],
+  ['الحسيمة','Al Hoceïma'], ['إمزورن','Imzouren'], ['جرسيف','Jerada'],
+  ['أحفير','Ahfir'], ['العرجات','Arjate'], ['بوعرفة','Bouarfa'], ['فجيج','Figuig'],
+  ['الدريوش','Driouch'], ['زايو','Zaïo'], ['أزمور','Azemmour'], ['الجرف الأصفر','Jorf Lasfar'],
+  ['قلعة مكونة','Kelaat M\'Gouna'], ['واد لاو','Oued Laou'], ['مارتيل','Martil'],
+  ['المضيق','M\'diq'], ['بوزنيقة','Bouznika'], ['سكورة','Skoura'],
+  ['أكادير إداوتنان','Aourir'], ['تيزنيت','Tiznit'], ['سيدي إفني','Sidi Ifni'],
+  ['شيشاوة','Chichaoua'], ['دمنات','Demnate'],
+  ['بولمان','Boulemane'], ['تاونات','Taounate'], ['وسلان','Ouislane'],
+  ['أولاد تايمة','Ouled Teïma'], ['اشتوكة آيت باها','Ait Melloul'], ['بيوگرة','Biougra'],
+  ['تارفاية','Tarfaya'], ['أسا الزاك','Assa-Zag'], ['گلتة زمور','Guelta Zemmour']
+];
+
+function populateCitySelect(){
+  const sel = document.getElementById('fCity');
+  const prevValue = sel.value;
+  const placeholderText = LANG === 'ar' ? 'اختر المدينة' : 'Choisissez la ville';
+  sel.innerHTML = `<option value="">${placeholderText}</option>` +
+    MOROCCO_CITIES.map(([ar]) => `<option value="${escapeHtml(ar)}">${escapeHtml(LANG === 'ar' ? ar : MOROCCO_CITIES.find(c=>c[0]===ar)[1])}</option>`).join('');
+  sel.value = prevValue;
+}
+
+function populateCityDatalist(){
+  const list = document.getElementById('citySuggestions');
+  list.innerHTML = MOROCCO_CITIES.map(([ar, fr]) =>
+    `<option value="${escapeHtml(LANG === 'ar' ? ar : fr)}"></option>`).join('');
+}
+
+function populateCityFilter(){
+  const sel = document.getElementById('cityFilter');
+  const cities = Array.from(new Set(listings.map(l => l.city).filter(Boolean))).sort();
+  const prevValue = sel.value;
+  sel.innerHTML = `<option value="">${t('allCities')}</option>` +
+    cities.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  sel.value = cities.includes(prevValue) ? prevValue : '';
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+// ---- Filters & search ----
+document.querySelectorAll('.pill').forEach((btn, idx)=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderList();
+  });
+});
+document.getElementById('searchBtn').addEventListener('click', ()=>{
+  searchQuery = document.getElementById('searchInput').value;
+  renderList();
+});
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchQuery = e.target.value;
+  renderList();
+});
+document.getElementById('cityFilter').addEventListener('change', (e)=>{
+  currentCityFilter = e.target.value;
+  renderList();
+});
+document.getElementById('searchInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){ searchQuery = e.target.value; renderList(); }
+});
+
+// ---- Modal ----
+const overlay = document.getElementById('modalOverlay');
+function openModal(){
+  overlay.style.display = 'flex';
+  document.getElementById('formError').style.display = 'none';
+}
+function closeModal(){
+  overlay.style.display = 'none';
+  document.getElementById('fName').value = '';
+  document.getElementById('fPhone').value = '';
+  document.getElementById('fCity').value = '';
+  document.getElementById('fAddr').value = '';
+  document.getElementById('fPrice').value = '';
+  document.getElementById('photoHint').style.display = 'inline';
+  document.getElementById('photoThumbs').innerHTML = '';
+  document.getElementById('photoFile').value = '';
+  photoDataUrls = [];
+  selectedDuration = 'monthly';
+  document.getElementById('durMonthlyBtn').classList.add('active');
+  document.getElementById('durDailyBtn').classList.remove('active');
+  document.getElementById('fFeatured').checked = false;
+  document.getElementById('featuredLockNote').style.display = 'none';
+}
+document.getElementById('openAddBtn').addEventListener('click', openModal);
+document.getElementById('fabAdd').addEventListener('click', openModal);
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+document.querySelectorAll('.dur-opt').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.dur-opt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedDuration = btn.dataset.dur;
+  });
+});
+
+document.getElementById('photoWrap').addEventListener('click', ()=>{
+  document.getElementById('photoFile').click();
+});
+document.getElementById('photoFile').addEventListener('change', (e)=>{
+  const files = Array.from(e.target.files || []);
+  const room = MAX_PHOTOS - photoDataUrls.length;
+  files.slice(0, room).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const canvas = document.createElement('canvas');
+        const maxW = 640;
+        const scale = Math.min(1, maxW / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        photoDataUrls.push(canvas.toDataURL('image/jpeg', 0.7));
+        renderPhotoThumbs();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  e.target.value = '';
+});
+
+function renderPhotoThumbs(){
+  const wrap = document.getElementById('photoThumbs');
+  wrap.innerHTML = photoDataUrls.map((src, i) => `
+    <div class="photo-thumb-item">
+      <img src="${src}" alt="">
+      <button type="button" class="photo-thumb-remove" data-idx="${i}">×</button>
+    </div>`).join('');
+  document.getElementById('photoHint').style.display = photoDataUrls.length ? 'none' : 'inline';
+  wrap.querySelectorAll('.photo-thumb-remove').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      photoDataUrls.splice(parseInt(btn.dataset.idx,10), 1);
+      renderPhotoThumbs();
+    });
+  });
+}
+
+function showToast(msg){
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=> el.remove(), 2400);
+}
+
+document.getElementById('submitBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  const addr = document.getElementById('fAddr').value.trim();
+  const price = document.getElementById('fPrice').value.trim();
+  const errEl = document.getElementById('formError');
+
+  if(!name){ errEl.textContent = t('errName'); errEl.style.display='block'; return; }
+  if(!phone){ errEl.textContent = t('errPhone'); errEl.style.display='block'; return; }
+  if(!city){ errEl.textContent = t('errCity'); errEl.style.display='block'; return; }
+  if(!addr){ errEl.textContent = t('errAddr'); errEl.style.display='block'; return; }
+  if(!price){ errEl.textContent = t('errPrice'); errEl.style.display='block'; return; }
+
+  const subscribed = isSubscribed(phone);
+  const ownerListingCount = listings.filter(l => normalizePhone(l.phone) === normalizePhone(phone)).length;
+  if(!subscribed && ownerListingCount >= FREE_LISTING_LIMIT){
+    errEl.style.display = 'none';
+    closeModal();
+    openSubModal(phone);
+    return;
+  }
+
+  const wantsFeatured = document.getElementById('fFeatured').checked;
+  if(wantsFeatured && !subscribed){
+    errEl.textContent = t('featuredLocked');
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = t('submitting');
+
+  const newListing = {
+    name, phone, city, address: addr, price, duration: selectedDuration,
+    photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed
+  };
+  let ok = true;
+  try{
+    await addDoc(collection(db, 'listings'), newListing);
+  }catch(e){ ok = false; }
+  submitBtn.disabled = false;
+  submitBtn.textContent = t('submit');
+
+  if(ok){
+    closeModal();
+    showToast(t('toastPublished'));
+  } else {
+    errEl.textContent = LANG==='ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez";
+    errEl.style.display = 'block';
+  }
+});
+
+// ---- Subscribe / upsell modal ----
+const subOverlay = document.getElementById('subOverlay');
+function openSubModal(prefillPhone, limitTriggered){
+  document.getElementById('subPhone').value = prefillPhone || '';
+  document.getElementById('subError').style.display = 'none';
+  const noteEl = document.getElementById('subLimitNote');
+  if(limitTriggered){ noteEl.textContent = t('limitReached'); noteEl.style.display = 'block'; }
+  else { noteEl.style.display = 'none'; }
+  subOverlay.style.display = 'flex';
+}
+function closeSubModal(){ subOverlay.style.display = 'none'; }
+document.getElementById('subCancelBtn').addEventListener('click', closeSubModal);
+subOverlay.addEventListener('click', (e)=>{ if(e.target === subOverlay) closeSubModal(); });
+
+document.getElementById('subSubmitBtn').addEventListener('click', async ()=>{
+  const phone = document.getElementById('subPhone').value.trim();
+  const errEl = document.getElementById('subError');
+  if(!phone){ errEl.textContent = t('subErrPhone'); errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  const btn = document.getElementById('subSubmitBtn');
+  btn.disabled = true;
+  const reqId = await addRequest({ phone, requestedAt: Date.now(), status:'pending' });
+  btn.disabled = false;
+  if(reqId){
+    closeSubModal();
+    showToast(t('subSent'));
+    if(ADMIN_WHATSAPP){
+      const msg = encodeURIComponent(
+        LANG === 'ar'
+          ? `مرحبًا، أرغب في الاشتراك في موقع دار كوم. رقم هاتفي: ${phone}`
+          : `Bonjour, je veux m'abonner sur Dar Kom. Mon numéro : ${phone}`
+      );
+      window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${msg}`, '_blank');
+    }
+  } else {
+    errEl.textContent = LANG==='ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez";
+    errEl.style.display = 'block';
+  }
+});
+
+// ---- Admin panel ----
+const adminOverlay = document.getElementById('adminOverlay');
+let adminUnlocked = false;
+document.getElementById('adminLinkBtn').addEventListener('click', async ()=>{
+  adminOverlay.style.display = 'flex';
+  if(adminUnlocked){
+    await loadSubs();
+    await loadRequests();
+    showAdminPanel();
+  } else {
+    document.getElementById('adminLoginBox').style.display = 'block';
+    document.getElementById('adminPanelBox').style.display = 'none';
+    document.getElementById('adminPassInput').value = '';
+    document.getElementById('adminError').style.display = 'none';
+  }
+});
+function closeAdminModal(){ adminOverlay.style.display = 'none'; }
+document.getElementById('adminCancelBtn').addEventListener('click', closeAdminModal);
+document.getElementById('adminCloseBtn').addEventListener('click', closeAdminModal);
+adminOverlay.addEventListener('click', (e)=>{ if(e.target === adminOverlay) closeAdminModal(); });
+
+document.getElementById('adminLoginBtn').addEventListener('click', async ()=>{
+  const val = document.getElementById('adminPassInput').value;
+  if(val !== ADMIN_PASSWORD){
+    document.getElementById('adminError').textContent = t('adminWrong');
+    document.getElementById('adminError').style.display = 'block';
+    return;
+  }
+  adminUnlocked = true;
+  await loadSubs();
+  await loadRequests();
+  showAdminPanel();
+});
+
+function showAdminPanel(){
+  document.getElementById('adminLoginBox').style.display = 'none';
+  document.getElementById('adminPanelBox').style.display = 'block';
+  renderAdminPanel();
+}
+
+function renderAdminPanel(){
+  const pendingEl = document.getElementById('pendingList');
+  const pending = requests.filter(r => r.status === 'pending');
+  pendingEl.innerHTML = pending.length ? pending.map(r => `
+    <div class="admin-row">
+      <span>${escapeHtml(r.phone)}</span>
+      <div class="actions">
+        <button class="approve-btn" data-reqid="${r.id}" data-act="approve">${t('approve')}</button>
+        <button class="reject-btn" data-reqid="${r.id}" data-act="reject">${t('reject')}</button>
+      </div>
+    </div>`).join('') : `<p style="font-size:12.5px;color:#8a8470;">${t('noPending')}</p>`;
+
+  const activeEl = document.getElementById('activeSubsList');
+  const now = Date.now();
+  const activePhones = Object.keys(subscriptions).filter(k => subscriptions[k].active && subscriptions[k].expiresAt > now);
+  activeEl.innerHTML = activePhones.length ? activePhones.map(k => `
+    <div class="admin-row">
+      <span>${escapeHtml(k)}</span>
+      <span>${t('expiresLabel')} ${new Date(subscriptions[k].expiresAt).toLocaleDateString(LANG==='ar'?'ar-MA':'fr-FR')}</span>
+    </div>`).join('') : `<p style="font-size:12.5px;color:#8a8470;">${t('noActive')}</p>`;
+
+  pendingEl.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.reqid;
+      const act = btn.dataset.act;
+      const req = requests.find(r => r.id === id);
+      if(!req) return;
+      if(act === 'approve'){
+        const key = normalizePhone(req.phone);
+        subscriptions[key] = { active:true, expiresAt: Date.now() + SUB_DURATION_MS };
+        await setSubscription(key, subscriptions[key]);
+        await updateRequestStatus(req.id, 'approved');
+        req.status = 'approved';
+      } else {
+        await updateRequestStatus(req.id, 'rejected');
+        req.status = 'rejected';
+      }
+      renderAdminPanel();
+    });
+  });
+
+  const listingsEl = document.getElementById('listingsMgmtList');
+  const sortedListings = listings.slice().reverse();
+  listingsEl.innerHTML = sortedListings.length ? sortedListings.map(l => `
+    <div class="admin-row">
+      <span>${l.name ? escapeHtml(l.name) + ' — ' : ''}${escapeHtml(l.address)}${l.city ? ', ' + escapeHtml(l.city) : ''} — ${escapeHtml(String(l.price))} ${l.duration==='daily' ? t('perDay') : t('perMonth')}</span>
+      <div class="actions">
+        <button class="reject-btn" data-listingid="${l.id}">${t('deleteListing')}</button>
+      </div>
+    </div>`).join('') : `<p style="font-size:12.5px;color:#8a8470;">${t('noListings')}</p>`;
+
+  listingsEl.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.listingid;
+      if(!confirm(t('confirmDeleteListing'))) return;
+      btn.disabled = true;
+      try{
+        await deleteDoc(doc(db, 'listings', id));
+        showToast(t('listingDeleted'));
+      }catch(e){
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+initListingsListener();
+loadSubs();
+loadRequests();
+populateCitySelect();
+populateCityDatalist();
+</script>
+</body>
+</html>
