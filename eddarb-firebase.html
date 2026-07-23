@@ -54,21 +54,40 @@
     cursor:pointer;
     font-family:inherit;
   }
-  .account-btn{
-    background:rgba(255,255,255,0.12);
-    border:1px solid rgba(255,255,255,0.35);
-    color:var(--sand);
-    border-radius:999px;
-    padding:6px 12px;
-    font-size:12px;
-    font-weight:700;
-    cursor:pointer;
-    font-family:inherit;
-    max-width:110px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    white-space:nowrap;
+  .account-wrap{position:relative;}
+  .avatar-btn{
+    width:34px;height:34px;border-radius:999px;border:1px solid rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.12);color:var(--sand);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;
+    font-weight:800;font-size:14px;padding:0;
   }
+  .avatar-btn img{width:100%;height:100%;object-fit:cover;display:block;}
+  .account-dropdown{
+    position:absolute;top:calc(100% + 8px);left:0;background:var(--white);
+    border-radius:12px;box-shadow:0 10px 30px rgba(28,27,24,0.25);
+    padding:14px;min-width:180px;z-index:20;text-align:center;
+  }
+  html[dir="rtl"] .account-dropdown{left:auto;right:0;}
+  .account-dropdown-avatar{
+    width:56px;height:56px;border-radius:999px;background:var(--sand);
+    margin:0 auto 8px;overflow:hidden;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-size:20px;color:var(--majorelle);
+  }
+  .account-dropdown-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+  .account-dropdown-name{font-weight:800;font-size:14px;color:var(--ink);}
+  .account-dropdown-phone{font-size:12px;color:#8a8470;margin-top:2px;margin-bottom:10px;direction:ltr;}
+  .account-dropdown-logout{
+    width:100%;background:none;border:1px solid var(--line);color:#a33b2b;
+    border-radius:9px;padding:7px 6px;font-size:12.5px;font-weight:700;
+    font-family:inherit;cursor:pointer;
+  }
+  .avatar-picker{display:flex;align-items:center;justify-content:center;margin-top:4px;}
+  .avatar-picker-circle{
+    width:76px;height:76px;border-radius:999px;background:var(--sand);
+    border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;overflow:hidden;font-size:26px;color:var(--majorelle);
+  }
+  .avatar-picker-circle img{width:100%;height:100%;object-fit:cover;display:block;}
   .btn-primary{
     background:var(--copper);
     color:var(--white);
@@ -214,6 +233,17 @@
     display:flex;align-items:flex-end;justify-content:center;
   }
   @media(min-width:640px){.modal-overlay{align-items:center;}}
+  .auth-gate{
+    position:fixed;inset:0;z-index:60;background:linear-gradient(160deg,var(--majorelle),var(--majorelle-dark));
+    display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
+  }
+  .auth-gate-card{
+    background:var(--sand);width:100%;max-width:420px;border-radius:20px;
+    padding:26px 20px 24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);
+  }
+  .auth-gate .brand{color:var(--majorelle);font-size:22px;font-weight:800;margin-bottom:6px;}
+  .auth-gate .brand svg{width:26px;height:26px;}
+  .auth-gate-sub{font-size:12.5px;color:#6b675f;text-align:center;margin:0 0 16px;}
   .modal{
     background:var(--sand);width:100%;max-width:480px;
     border-radius:20px 20px 0 0;padding:20px 18px 26px;
@@ -293,6 +323,46 @@
 </head>
 <body>
 
+<div class="auth-gate" id="authGate">
+  <div class="auth-gate-card">
+    <div class="brand" style="justify-content:center;">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.2 6.8H21l-5.4 4.2 2.1 6.8L12 13.6l-5.7 4.2 2.1-6.8L3 6.8h6.8L12 0z"/></svg>
+      <span id="gateBrandText">دار كوم</span>
+    </div>
+    <p class="auth-gate-sub" id="gateSub">سجل الدخول أو أنشئ حسابًا للمتابعة</p>
+    <div class="account-tabs">
+      <button type="button" class="account-tab active" id="loginTabBtn">دخول</button>
+      <button type="button" class="account-tab" id="signupTabBtn">حساب جديد</button>
+    </div>
+    <div class="field" id="accountAvatarField" style="display:none;">
+      <label id="lblAccAvatar">الصورة الشخصية (اختياري)</label>
+      <div class="avatar-picker">
+        <div class="avatar-picker-circle" id="avatarPickerCircle">
+          <img id="avatarPickerImg" style="display:none;" alt="">
+          <span id="avatarPickerPlus">+</span>
+        </div>
+        <input type="file" accept="image/*" id="accAvatarFile" style="display:none;">
+      </div>
+    </div>
+    <div class="field" id="accountNameField" style="display:none;">
+      <label id="lblAccName">الاسم</label>
+      <input type="text" id="accName" placeholder="مثال: محمد">
+    </div>
+    <div class="field">
+      <label id="lblAccPhone">رقم الهاتف</label>
+      <input type="tel" id="accPhone" placeholder="06XXXXXXXX">
+    </div>
+    <div class="field">
+      <label id="lblAccPassword">كلمة المرور</label>
+      <input type="password" id="accPassword" placeholder="••••••">
+    </div>
+    <div class="error-text" id="accountError" style="display:none;"></div>
+    <button class="btn-submit" id="accountSubmitBtn" style="width:100%;">دخول</button>
+  </div>
+</div>
+
+<div id="appContent" style="display:none;">
+
 <header>
   <div class="brand" id="brandName">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0l2.2 6.8H21l-5.4 4.2 2.1 6.8L12 13.6l-5.7 4.2 2.1-6.8L3 6.8h6.8L12 0z"/></svg>
@@ -300,8 +370,21 @@
   </div>
   <div class="header-actions">
     <button class="lang-toggle" id="langToggle">FR</button>
-    <button class="account-btn" id="accountBtn">تسجيل الدخول</button>
-    <button class="account-btn" id="logoutBtn" style="display:none;">خروج</button>
+    <div class="account-wrap" id="accountWrap">
+      <button class="avatar-btn" id="accountBtn">
+        <img id="avatarImg" style="display:none;" alt="">
+        <span id="avatarInitial">؟</span>
+      </button>
+      <div class="account-dropdown" id="accountDropdown" style="display:none;">
+        <div class="account-dropdown-avatar">
+          <img id="dropdownAvatarImg" style="display:none;" alt="">
+          <span id="dropdownAvatarInitial"></span>
+        </div>
+        <div class="account-dropdown-name" id="dropdownName"></div>
+        <div class="account-dropdown-phone" id="dropdownPhone"></div>
+        <button class="account-dropdown-logout" id="logoutBtn">خروج</button>
+      </div>
+    </div>
     <button class="btn-primary" id="openAddBtn">+ <span id="addBtnText">عرض جديد</span></button>
   </div>
 </header>
@@ -427,32 +510,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="accountOverlay" style="display:none;">
-  <div class="modal">
-    <h2 id="accountTitle">تسجيل الدخول</h2>
-    <div class="account-tabs">
-      <button type="button" class="account-tab active" id="loginTabBtn">دخول</button>
-      <button type="button" class="account-tab" id="signupTabBtn">حساب جديد</button>
-    </div>
-    <div class="field" id="accountNameField" style="display:none;">
-      <label id="lblAccName">الاسم</label>
-      <input type="text" id="accName" placeholder="مثال: محمد">
-    </div>
-    <div class="field">
-      <label id="lblAccPhone">رقم الهاتف</label>
-      <input type="tel" id="accPhone" placeholder="06XXXXXXXX">
-    </div>
-    <div class="field">
-      <label id="lblAccPassword">كلمة المرور</label>
-      <input type="password" id="accPassword" placeholder="••••••">
-    </div>
-    <div class="error-text" id="accountError" style="display:none;"></div>
-    <div class="modal-actions">
-      <button class="btn-ghost" id="accountCancelBtn">إلغاء</button>
-      <button class="btn-submit" id="accountSubmitBtn">دخول</button>
-    </div>
-  </div>
-</div>
 
 <div class="modal-overlay" id="adminOverlay" style="display:none;">
   <div class="modal">
@@ -480,6 +537,8 @@
       </div>
     </div>
   </div>
+</div>
+
 </div>
 
 <script type="module">
@@ -594,6 +653,8 @@ const STR = {
     signupTab:'حساب جديد',
     accountTitleLogin:'تسجيل الدخول',
     accountTitleSignup:'إنشاء حساب جديد',
+    lblAccAvatar:'الصورة الشخصية (اختياري)',
+    gateSub:'سجل الدخول أو أنشئ حسابًا للمتابعة',
     lblAccName:'الاسم', phAccName:'مثال: محمد',
     lblAccPhone:'رقم الهاتف', phAccPhone:'06XXXXXXXX',
     lblAccPassword:'كلمة المرور', phAccPassword:'••••••',
@@ -681,6 +742,8 @@ const STR = {
     signupTab:'Nouveau compte',
     accountTitleLogin:'Connexion',
     accountTitleSignup:'Créer un compte',
+    lblAccAvatar:'Photo de profil (facultatif)',
+    gateSub:'Connectez-vous ou créez un compte pour continuer',
     lblAccName:'Nom', phAccName:'ex : Mohamed',
     lblAccPhone:'Numéro de téléphone', phAccPhone:'06XXXXXXXX',
     lblAccPassword:'Mot de passe', phAccPassword:'••••••',
@@ -756,13 +819,14 @@ function applyLangToDOM(){
   document.getElementById('adminCancelBtn').textContent = t('adminCancel');
   document.getElementById('loginTabBtn').textContent = t('loginTab');
   document.getElementById('signupTabBtn').textContent = t('signupTab');
+  document.getElementById('lblAccAvatar').textContent = t('lblAccAvatar');
   document.getElementById('lblAccName').textContent = t('lblAccName');
   document.getElementById('accName').placeholder = t('phAccName');
   document.getElementById('lblAccPhone').textContent = t('lblAccPhone');
   document.getElementById('accPhone').placeholder = t('phAccPhone');
   document.getElementById('lblAccPassword').textContent = t('lblAccPassword');
   document.getElementById('accPassword').placeholder = t('phAccPassword');
-  document.getElementById('accountCancelBtn').textContent = t('accountCancel');
+  document.getElementById('gateSub').textContent = t('gateSub');
   updateAccountModalMode();
   document.getElementById('logoutBtn').textContent = t('logoutBtn');
   updateAccountHeaderUI();
@@ -839,49 +903,121 @@ async function hashPassword(pw){
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-function updateAccountHeaderUI(){
-  const accBtn = document.getElementById('accountBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  if(currentOwner){
-    accBtn.textContent = currentOwner.name || currentOwner.phone;
-    logoutBtn.style.display = 'inline-block';
+function renderAvatarInto(imgEl, initialEl, owner){
+  const initial = owner && owner.name ? owner.name.trim().charAt(0).toUpperCase() : '؟';
+  if(owner && owner.avatar){
+    imgEl.src = owner.avatar;
+    imgEl.style.display = 'block';
+    initialEl.style.display = 'none';
   } else {
-    accBtn.textContent = t('loginBtn');
-    logoutBtn.style.display = 'none';
+    imgEl.style.display = 'none';
+    initialEl.style.display = 'block';
+    initialEl.textContent = initial;
   }
 }
+
+function updateAccountHeaderUI(){
+  const avatarImg = document.getElementById('avatarImg');
+  const avatarInitial = document.getElementById('avatarInitial');
+  const dropdownAvatarImg = document.getElementById('dropdownAvatarImg');
+  const dropdownAvatarInitial = document.getElementById('dropdownAvatarInitial');
+  const dropdownName = document.getElementById('dropdownName');
+  const dropdownPhone = document.getElementById('dropdownPhone');
+
+  if(currentOwner){
+    renderAvatarInto(avatarImg, avatarInitial, currentOwner);
+    renderAvatarInto(dropdownAvatarImg, dropdownAvatarInitial, currentOwner);
+    dropdownName.textContent = currentOwner.name || '';
+    dropdownPhone.textContent = currentOwner.phone || '';
+  } else {
+    avatarImg.style.display = 'none';
+    avatarInitial.style.display = 'block';
+    avatarInitial.textContent = '؟';
+    closeAccountDropdown();
+  }
+}
+
+function openAccountDropdown(){ document.getElementById('accountDropdown').style.display = 'block'; }
+function closeAccountDropdown(){ document.getElementById('accountDropdown').style.display = 'none'; }
 
 function updateAccountModalMode(){
   const isSignup = accountMode === 'signup';
   document.getElementById('loginTabBtn').classList.toggle('active', !isSignup);
   document.getElementById('signupTabBtn').classList.toggle('active', isSignup);
   document.getElementById('accountNameField').style.display = isSignup ? 'block' : 'none';
-  document.getElementById('accountTitle').textContent = isSignup ? t('accountTitleSignup') : t('accountTitleLogin');
+  document.getElementById('accountAvatarField').style.display = isSignup ? 'block' : 'none';
   document.getElementById('accountSubmitBtn').textContent = isSignup ? t('accountSignupBtn') : t('accountLoginBtn');
   document.getElementById('accountError').style.display = 'none';
 }
 
-function openAccountModal(){
+let signupAvatarDataUrl = null;
+
+function resetAvatarPicker(){
+  signupAvatarDataUrl = null;
+  document.getElementById('avatarPickerImg').style.display = 'none';
+  document.getElementById('avatarPickerPlus').style.display = 'block';
+  document.getElementById('accAvatarFile').value = '';
+}
+
+document.getElementById('avatarPickerCircle').addEventListener('click', ()=>{
+  document.getElementById('accAvatarFile').click();
+});
+document.getElementById('accAvatarFile').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const size = 200;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const scale = Math.max(size / img.width, size / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+      signupAvatarDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+      const previewImg = document.getElementById('avatarPickerImg');
+      previewImg.src = signupAvatarDataUrl;
+      previewImg.style.display = 'block';
+      document.getElementById('avatarPickerPlus').style.display = 'none';
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function showGate(){
   accountMode = 'login';
   updateAccountModalMode();
   document.getElementById('accName').value = '';
   document.getElementById('accPhone').value = '';
   document.getElementById('accPassword').value = '';
-  document.getElementById('accountOverlay').style.display = 'flex';
+  resetAvatarPicker();
+  document.getElementById('authGate').style.display = 'flex';
+  document.getElementById('appContent').style.display = 'none';
 }
-function closeAccountModal(){
-  document.getElementById('accountOverlay').style.display = 'none';
+function hideGate(){
+  document.getElementById('authGate').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
 }
 
-document.getElementById('accountBtn').addEventListener('click', ()=>{
-  if(!currentOwner) openAccountModal();
+document.getElementById('accountBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const dd = document.getElementById('accountDropdown');
+  if(dd.style.display === 'block') closeAccountDropdown();
+  else openAccountDropdown();
+});
+document.addEventListener('click', (e)=>{
+  const wrap = document.getElementById('accountWrap');
+  if(wrap && !wrap.contains(e.target)) closeAccountDropdown();
 });
 document.getElementById('logoutBtn').addEventListener('click', ()=>{
   currentOwner = null;
   try{ localStorage.removeItem('darkom_owner'); }catch(e){}
   updateAccountHeaderUI();
+  showGate();
 });
-document.getElementById('accountCancelBtn').addEventListener('click', closeAccountModal);
 document.getElementById('loginTabBtn').addEventListener('click', ()=>{
   accountMode = 'login';
   updateAccountModalMode();
@@ -917,8 +1053,9 @@ document.getElementById('accountSubmitBtn').addEventListener('click', async ()=>
         errEl.textContent = t('accErrExists'); errEl.style.display = 'block'; submitBtn.disabled = false; return;
       }
       const passwordHash = await hashPassword(password);
-      await setDoc(ref, { phone: key, name, passwordHash, createdAt: Date.now() });
-      currentOwner = { phone: key, name };
+      const avatar = signupAvatarDataUrl || null;
+      await setDoc(ref, { phone: key, name, passwordHash, avatar, createdAt: Date.now() });
+      currentOwner = { phone: key, name, avatar };
     } else {
       if(!existing){
         errEl.textContent = t('accErrNotFound'); errEl.style.display = 'block'; submitBtn.disabled = false; return;
@@ -928,11 +1065,11 @@ document.getElementById('accountSubmitBtn').addEventListener('click', async ()=>
       if(passwordHash !== data.passwordHash){
         errEl.textContent = t('accErrWrongPass'); errEl.style.display = 'block'; submitBtn.disabled = false; return;
       }
-      currentOwner = { phone: key, name: data.name };
+      currentOwner = { phone: key, name: data.name, avatar: data.avatar || null };
     }
     try{ localStorage.setItem('darkom_owner', JSON.stringify(currentOwner)); }catch(e){}
     updateAccountHeaderUI();
-    closeAccountModal();
+    hideGate();
     showToast(isSignup ? t('accountCreated') : t('accountWelcome'));
   }catch(e){
     errEl.textContent = LANG === 'ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez";
@@ -1440,6 +1577,7 @@ loadRequests();
 populateCitySelect();
 populateCityDatalist();
 updateAccountHeaderUI();
+if(currentOwner){ hideGate(); } else { showGate(); }
 </script>
 </body>
 </html>
