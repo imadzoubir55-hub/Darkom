@@ -309,6 +309,12 @@
     background:var(--copper);color:#fff;font-size:10.5px;font-weight:800;
     padding:3px 9px;border-radius:999px;z-index:2;
   }
+  .sale-flag{
+    position:absolute;top:10px;inset-inline-end:10px;
+    background:#B23A3A;color:#fff;font-size:10.5px;font-weight:800;
+    padding:3px 9px;border-radius:999px;z-index:2;
+  }
+  .duration-badge.sale{background:#B23A3A;}
   .card{position:relative;}
   .checkbox-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;background:#fff;
     border:1px solid var(--line);border-radius:10px;padding:11px 12px;}
@@ -418,6 +424,7 @@
       <button class="pill active" data-filter="all">الكل</button>
       <button class="pill" data-filter="monthly">شهري</button>
       <button class="pill" data-filter="daily">يومي</button>
+      <button class="pill" data-filter="sale">للبيع</button>
     </div>
     <select id="cityFilter" class="pill" style="background:var(--white);box-shadow:0 4px 16px rgba(28,27,24,0.1);border:none;">
       <option value="">كل المدن</option>
@@ -475,6 +482,14 @@
     </div>
 
     <div class="field">
+      <label id="lblType">نوع العرض</label>
+      <div class="duration-toggle">
+        <button type="button" class="type-opt active" data-type="rent" id="typeRentBtn">للكراء</button>
+        <button type="button" class="type-opt" data-type="sale" id="typeSaleBtn">للبيع</button>
+      </div>
+    </div>
+
+    <div class="field" id="durationField">
       <label id="lblDuration">مدة الكراء</label>
       <div class="duration-toggle">
         <button type="button" class="dur-opt active" data-dur="monthly" id="durMonthlyBtn">شهري</button>
@@ -586,6 +601,7 @@ let currentFilter = 'all';
 let currentCityFilter = '';
 let searchQuery = '';
 let selectedDuration = 'monthly';
+let selectedType = 'rent';
 let photoDataUrls = [];
 const MAX_PHOTOS = 6;
 let listings = [];
@@ -598,8 +614,9 @@ const STR = {
     heroTitle:'حيّك، إيجار بسهولة',
     heroSub:'شقق ومنازل للإيجار الشهري أو اليومي، مباشرة من المالكين — بلا وسيط.',
     searchPh:'أين تريد أن تسكن؟ (الحي، الشارع...)', searchBtn:'بحث',
-    pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي',
+    pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي', pillSale:'للبيع',
     countSuffix:(n)=> n + ' إعلان متاح',
+    lblType:'نوع العرض', typeRent:'للكراء', typeSale:'للبيع', saleFlag:'للبيع',
     modalTitle:'نشر إعلان جديد', modalSub:'أدخل المعلومات وصور الشقة، وسيظهر إعلانك للجميع في الموقع.',
     lblPhoto:'صور الشقة', photoHint:'اضغط لاختيار الصور',
     lblName:'الاسم', phName:'مثال: محمد', errName:'يجب كتابة الاسم',
@@ -688,8 +705,9 @@ const STR = {
     heroTitle:"Votre quartier, votre location",
     heroSub:"Appartements et maisons à louer, mensuel ou journalier — directement chez les propriétaires.",
     searchPh:'Où voulez-vous habiter ? (quartier...)', searchBtn:'Chercher',
-    pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier',
+    pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier', pillSale:'À vendre',
     countSuffix:(n)=> n + ' annonce(s) disponible(s)',
+    lblType:'Type d\'annonce', typeRent:'À louer', typeSale:'À vendre', saleFlag:'À vendre',
     modalTitle:'Publier une annonce', modalSub:"Remplissez les infos et la photo, votre annonce sera visible par tous.",
     lblPhoto:"Photo du logement", photoHint:'Cliquez pour choisir une photo',
     lblName:'Nom', phName:'ex : Mohamed', errName:'Le nom est requis',
@@ -790,6 +808,7 @@ function applyLangToDOM(){
   pills[0].textContent = t('pillAll');
   pills[1].textContent = t('pillMonthly');
   pills[2].textContent = t('pillDaily');
+  pills[3].textContent = t('pillSale');
   document.getElementById('modalTitle').textContent = t('modalTitle');
   document.getElementById('modalSub').textContent = t('modalSub');
   document.getElementById('lblPhoto').textContent = t('lblPhoto');
@@ -809,6 +828,9 @@ function applyLangToDOM(){
   document.getElementById('lblDuration').textContent = t('lblDuration');
   document.getElementById('durMonthlyBtn').textContent = t('pillMonthly');
   document.getElementById('durDailyBtn').textContent = t('pillDaily');
+  document.getElementById('lblType').textContent = t('lblType');
+  document.getElementById('typeRentBtn').textContent = t('typeRent');
+  document.getElementById('typeSaleBtn').textContent = t('typeSale');
   document.getElementById('cancelBtn').textContent = t('cancel');
   document.getElementById('submitBtn').textContent = t('submit');
   document.getElementById('langToggle').textContent = t('langBtn');
@@ -1127,7 +1149,11 @@ function renderList(){
   const grid = document.getElementById('listGrid');
   let items = listings.slice().reverse();
   if(currentFilter !== 'all'){
-    items = items.filter(it => it.duration === currentFilter);
+    if(currentFilter === 'sale'){
+      items = items.filter(it => it.type === 'sale');
+    } else {
+      items = items.filter(it => it.type !== 'sale' && it.duration === currentFilter);
+    }
   }
   if(currentCityFilter){
     items = items.filter(it => it.city === currentCityFilter);
@@ -1161,11 +1187,13 @@ function renderList(){
            ` : ''}
          </div>`
       : `<div class="card-photo-empty">—</div>`;
-    const durLabel = it.duration === 'monthly' ? t('pillMonthly') : t('pillDaily');
-    const durClass = it.duration === 'monthly' ? 'monthly' : 'daily';
-    const perLabel = it.duration === 'monthly' ? t('perMonth') : t('perDay');
+    const isSale = it.type === 'sale';
+    const durLabel = isSale ? t('saleFlag') : (it.duration === 'monthly' ? t('pillMonthly') : t('pillDaily'));
+    const durClass = isSale ? 'sale' : (it.duration === 'monthly' ? 'monthly' : 'daily');
+    const perLabel = isSale ? '' : (it.duration === 'monthly' ? t('perMonth') : t('perDay'));
     const waNumber = toWhatsAppNumber(it.phone);
     const featuredFlag = it.featured ? `<span class="featured-flag">✦ ${t('featuredFlag')}</span>` : '';
+    const saleFlag = isSale ? `<span class="sale-flag">${t('saleFlag')}</span>` : '';
     const waMsg = encodeURIComponent(
       LANG === 'ar'
         ? `مرحبًا، شفت إعلانك (${it.address}${it.city ? '، ' + it.city : ''}) في موقع دار كوم وحاب نتواصل معاك بخصوصو.`
@@ -1174,6 +1202,7 @@ function renderList(){
     return `
       <div class="card ${it.featured ? 'featured' : ''}">
         ${featuredFlag}
+        ${saleFlag}
         ${photoHtml}
         <div class="card-body">
           <div class="badge-row">
@@ -1349,6 +1378,10 @@ function closeModal(){
   selectedDuration = 'monthly';
   document.getElementById('durMonthlyBtn').classList.add('active');
   document.getElementById('durDailyBtn').classList.remove('active');
+  selectedType = 'rent';
+  document.getElementById('typeRentBtn').classList.add('active');
+  document.getElementById('typeSaleBtn').classList.remove('active');
+  document.getElementById('durationField').style.display = 'block';
   document.getElementById('fFeatured').checked = false;
   document.getElementById('featuredLockNote').style.display = 'none';
 }
@@ -1362,6 +1395,15 @@ document.querySelectorAll('.dur-opt').forEach(btn=>{
     document.querySelectorAll('.dur-opt').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     selectedDuration = btn.dataset.dur;
+  });
+});
+
+document.querySelectorAll('.type-opt').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.type-opt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedType = btn.dataset.type;
+    document.getElementById('durationField').style.display = selectedType === 'sale' ? 'none' : 'block';
   });
 });
 
@@ -1454,7 +1496,9 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   submitBtn.textContent = t('submitting');
 
   const newListing = {
-    name, phone, city, address: addr, price, duration: selectedDuration,
+    name, phone, city, address: addr, price,
+    type: selectedType,
+    duration: selectedType === 'rent' ? selectedDuration : null,
     photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed
   };
   let ok = true;
@@ -1598,7 +1642,7 @@ function renderAdminPanel(){
   const sortedListings = listings.slice().reverse();
   listingsEl.innerHTML = sortedListings.length ? sortedListings.map(l => `
     <div class="admin-row">
-      <span>${l.name ? escapeHtml(l.name) + ' — ' : ''}${escapeHtml(l.address)}${l.city ? ', ' + escapeHtml(l.city) : ''} — ${escapeHtml(String(l.price))} ${l.duration==='daily' ? t('perDay') : t('perMonth')}</span>
+      <span>${l.name ? escapeHtml(l.name) + ' — ' : ''}${escapeHtml(l.address)}${l.city ? ', ' + escapeHtml(l.city) : ''} — ${escapeHtml(String(l.price))} ${l.type === 'sale' ? t('saleFlag') : (l.duration==='daily' ? t('perDay') : t('perMonth'))}</span>
       <div class="actions">
         <button class="reject-btn" data-listingid="${l.id}">${t('deleteListing')}</button>
       </div>
