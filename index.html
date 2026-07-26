@@ -147,14 +147,29 @@
     padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
   }
   main{max-width:920px;margin:0 auto;padding:18px;}
+  .category-row{
+    display:flex;gap:20px;justify-content:center;flex-wrap:wrap;
+    margin:0 0 26px;padding-bottom:20px;
+    border-bottom:1px solid var(--line);
+  }
+  .cat-btn{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:var(--white);border:2px solid transparent;border-radius:14px;
+    padding:10px 16px;cursor:pointer;font-family:inherit;
+    box-shadow:0 4px 16px rgba(28,27,24,0.08);min-width:84px;
+  }
+  .cat-btn .cat-icon{font-size:22px;}
+  .cat-btn span:last-child{font-size:11.5px;font-weight:700;color:var(--ink);}
+  .cat-btn.active{border-color:var(--majorelle);background:var(--sand);}
+  .cat-opt{flex:1;}
   .filters{
     display:flex;gap:8px;flex-wrap:wrap;
     align-items:center;justify-content:space-between;
-    margin:-22px 0 18px;
+    margin:0 0 20px;
     position:relative;
   }
   .filter-pills{display:flex;gap:6px;background:var(--white);padding:5px;border-radius:12px;box-shadow:0 4px 16px rgba(28,27,24,0.1);flex-wrap:wrap;}
-  .price-filter-row{display:flex;gap:8px;margin-top:8px;}
+  .price-filter-row{display:flex;gap:8px;margin-top:14px;}
   .price-filter-row input{
     flex:1;border:1px solid var(--line);border-radius:10px;
     padding:9px 12px;font-size:13px;font-family:inherit;background:var(--white);outline:none;
@@ -267,6 +282,28 @@
     display:flex;align-items:flex-end;justify-content:center;
   }
   @media(min-width:640px){.modal-overlay{align-items:center;}}
+  .card-photo-wrap .card-photo{cursor:pointer;}
+  .lightbox{
+    position:fixed;inset:0;background:rgba(10,10,10,0.94);z-index:80;
+    display:none;align-items:center;justify-content:center;flex-direction:column;
+  }
+  .lightbox img{
+    max-width:94vw;max-height:78vh;object-fit:contain;border-radius:8px;
+    touch-action:pinch-zoom;
+  }
+  .lightbox-close{
+    position:absolute;top:16px;inset-inline-end:16px;z-index:2;
+    background:rgba(255,255,255,0.15);border:none;color:#fff;
+    width:38px;height:38px;border-radius:999px;font-size:20px;cursor:pointer;
+  }
+  .lightbox-nav{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+    background:rgba(255,255,255,0.15);border:none;color:#fff;
+    width:42px;height:42px;border-radius:999px;font-size:20px;cursor:pointer;
+  }
+  .lightbox-nav.prev{left:12px;}
+  .lightbox-nav.next{right:12px;}
+  .lightbox-counter{color:#fff;font-size:13px;margin-top:12px;opacity:0.8;}
   .auth-gate{
     position:fixed;inset:0;z-index:60;background:linear-gradient(160deg,var(--majorelle),var(--majorelle-dark));
     display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto;
@@ -432,16 +469,27 @@
 
 <div class="hero">
   <div class="hero-stars"></div>
-  <h1 id="heroTitle">الدرب ديالك، كراء بسهولة</h1>
-  <p id="heroSub">شقق و منازل للكراء الشهري أو اليومي، من عند المالكين مباشرة — بلا وسيط.</p>
+  <h1 id="heroTitle">كراء، بيع، سيارات — كلشي فبلاصة وحدة</h1>
+  <p id="heroSub">شقق، منازل، أراضي وسيارات للكراء والبيع، مباشرة من الأصحاب — بلا وسيط.</p>
   <div class="search-row">
-    <input type="text" id="searchInput" placeholder="فين بغيتي تسكن؟ (الدرب، الحي...)" list="citySuggestions" autocomplete="off">
+    <input type="text" id="searchInput" placeholder="دور على اللي بغيتي (كراء شقق، بيع أراضي...)" list="citySuggestions" autocomplete="off">
     <datalist id="citySuggestions"></datalist>
     <button id="searchBtn">بحث</button>
   </div>
 </div>
 
 <main>
+  <div class="category-row" id="categoryRow">
+    <button type="button" class="cat-btn active" data-category="property">
+      <span class="cat-icon">🏠</span><span id="catPropertyLabel">شقق ومنازل</span>
+    </button>
+    <button type="button" class="cat-btn" data-category="land">
+      <span class="cat-icon">🌍</span><span id="catLandLabel">أراضي</span>
+    </button>
+    <button type="button" class="cat-btn" data-category="car">
+      <span class="cat-icon">🚗</span><span id="catCarLabel">سيارات</span>
+    </button>
+  </div>
   <div class="filters">
     <div class="filter-pills">
       <button class="pill active" data-filter="all">الكل</button>
@@ -483,6 +531,15 @@
     </div>
 
     <div class="field">
+      <label id="lblFormCategory">نوع الإعلان</label>
+      <div class="duration-toggle" id="formCategoryToggle">
+        <button type="button" class="cat-opt active" data-cat="property" id="catPropertyBtn">شقة/منزل</button>
+        <button type="button" class="cat-opt" data-cat="land" id="catLandBtn">أرض</button>
+        <button type="button" class="cat-opt" data-cat="car" id="catCarBtn">سيارة</button>
+      </div>
+    </div>
+
+    <div class="field">
       <label id="lblName">الاسم</label>
       <input type="text" id="fName" placeholder="مثال: محمد">
     </div>
@@ -509,7 +566,7 @@
       <input type="number" id="fPrice" placeholder="مثال: 2500">
     </div>
 
-    <div class="field">
+    <div class="field" id="typeToggleField">
       <label id="lblType">نوع العرض</label>
       <div class="duration-toggle">
         <button type="button" class="type-opt active" data-type="rent" id="typeRentBtn">للكراء</button>
@@ -596,6 +653,14 @@
 
 </div>
 
+<div class="lightbox" id="lightbox">
+  <button type="button" class="lightbox-close" id="lightboxClose">&times;</button>
+  <button type="button" class="lightbox-nav prev" id="lightboxPrev">&#10094;</button>
+  <img id="lightboxImg" src="" alt="">
+  <button type="button" class="lightbox-nav next" id="lightboxNext">&#10095;</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
@@ -628,6 +693,7 @@ const NEW_LISTING_MS = 48 * 60 * 60 * 1000;
 
 let LANG = 'ar';
 let currentFilter = 'all';
+let currentCategoryFilter = 'property';
 let currentCityFilter = '';
 let searchQuery = '';
 let priceMinFilter = null;
@@ -635,6 +701,7 @@ let priceMaxFilter = null;
 let deepLinkHandled = false;
 let selectedDuration = 'monthly';
 let selectedType = 'rent';
+let selectedCategory = 'property';
 let photoDataUrls = [];
 const MAX_PHOTOS = 6;
 let listings = [];
@@ -644,14 +711,18 @@ let requests = [];
 const STR = {
   ar:{
     brand:'دار كوم', addBtn:'إعلان جديد',
-    heroTitle:'حيّك، إيجار بسهولة',
-    heroSub:'شقق ومنازل للإيجار الشهري أو اليومي، مباشرة من المالكين — بلا وسيط.',
-    searchPh:'أين تريد أن تسكن؟ (الحي، الشارع...)', searchBtn:'بحث',
+    heroTitle:'كراء، بيع، سيارات — كلشي فبلاصة وحدة',
+    heroSub:'شقق، منازل، أراضي وسيارات للكراء والبيع، مباشرة من الأصحاب — بلا وسيط.',
+    searchPh:'دور على اللي بغيتي (كراء شقق، بيع أراضي...)', searchBtn:'بحث',
     pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي', pillSale:'للبيع',
     countSuffix:(n)=> n + ' إعلان متاح',
     lblType:'نوع العرض', typeRent:'للكراء', typeSale:'للبيع', saleFlag:'للبيع',
     pillFavorites:'المفضلة', priceMinPh:'السعر من', priceMaxPh:'السعر إلى',
     newBadge:'✨ جديد', shareBtn:'مشاركة', linkCopied:'تم نسخ الرابط! 📋',
+    catPropertyLabel:'شقق ومنازل', catLandLabel:'أراضي', catCarLabel:'سيارات',
+    lblFormCategory:'نوع الإعلان', catPropertyBtn:'شقة/منزل', catLandBtn:'أرض', catCarBtn:'سيارة',
+    addrLabelProperty:'الدرب / الحي', addrLabelLand:'موقع الأرض (الحي، المدينة)', addrLabelCar:'نوع وموديل السيارة',
+    addrPhProperty:'مثال: حي الداخلة، الدرب 3', addrPhLand:'مثال: حي الرياض، بجانب الطريق الرئيسية', addrPhCar:'مثال: داسيا لوجان 2020',
     modalTitle:'نشر إعلان جديد', modalSub:'أدخل المعلومات وصور الشقة، وسيظهر إعلانك للجميع في الموقع.',
     lblPhoto:'صور الشقة', photoHint:'اضغط لاختيار الصور',
     lblName:'الاسم', phName:'مثال: محمد', errName:'يجب كتابة الاسم',
@@ -737,14 +808,18 @@ const STR = {
   },
   fr:{
     brand:'Dar Kom', addBtn:'Nouvelle annonce',
-    heroTitle:"Votre quartier, votre location",
-    heroSub:"Appartements et maisons à louer, mensuel ou journalier — directement chez les propriétaires.",
-    searchPh:'Où voulez-vous habiter ? (quartier...)', searchBtn:'Chercher',
+    heroTitle:"Location, vente, voitures — tout près de chez vous",
+    heroSub:"Appartements, maisons, terrains et voitures à louer ou à vendre, directement chez les propriétaires.",
+    searchPh:'Cherchez ce que vous voulez (location appart, terrain à vendre...)', searchBtn:'Chercher',
     pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier', pillSale:'À vendre',
     countSuffix:(n)=> n + ' annonce(s) disponible(s)',
     lblType:'Type d\'annonce', typeRent:'À louer', typeSale:'À vendre', saleFlag:'À vendre',
     pillFavorites:'Favoris', priceMinPh:'Prix min', priceMaxPh:'Prix max',
     newBadge:'✨ Nouveau', shareBtn:'Partager', linkCopied:'Lien copié ! 📋',
+    catPropertyLabel:'Appartements', catLandLabel:'Terrains', catCarLabel:'Voitures',
+    lblFormCategory:'Type d\'annonce', catPropertyBtn:'Appart/Maison', catLandBtn:'Terrain', catCarBtn:'Voiture',
+    addrLabelProperty:'Rue / Quartier', addrLabelLand:'Emplacement du terrain (quartier, ville)', addrLabelCar:'Marque et modèle de la voiture',
+    addrPhProperty:'ex : Quartier Dakhla, Derb 3', addrPhLand:'ex : Quartier Riad, près de la route principale', addrPhCar:'ex : Dacia Logan 2020',
     modalTitle:'Publier une annonce', modalSub:"Remplissez les infos et la photo, votre annonce sera visible par tous.",
     lblPhoto:"Photo du logement", photoHint:'Cliquez pour choisir une photo',
     lblName:'Nom', phName:'ex : Mohamed', errName:'Le nom est requis',
@@ -857,8 +932,7 @@ function applyLangToDOM(){
   document.getElementById('fName').placeholder = t('phName');
   document.getElementById('lblPhone').textContent = t('lblPhone');
   document.getElementById('fPhone').placeholder = t('phPhone');
-  document.getElementById('lblAddr').textContent = t('lblAddr');
-  document.getElementById('fAddr').placeholder = t('phAddr');
+  updateAddressField();
   document.getElementById('lblCity').textContent = t('lblCity');
   populateCitySelect();
   populateCityDatalist();
@@ -871,6 +945,13 @@ function applyLangToDOM(){
   document.getElementById('lblType').textContent = t('lblType');
   document.getElementById('typeRentBtn').textContent = t('typeRent');
   document.getElementById('typeSaleBtn').textContent = t('typeSale');
+  document.getElementById('catPropertyLabel').textContent = t('catPropertyLabel');
+  document.getElementById('catLandLabel').textContent = t('catLandLabel');
+  document.getElementById('catCarLabel').textContent = t('catCarLabel');
+  document.getElementById('lblFormCategory').textContent = t('lblFormCategory');
+  document.getElementById('catPropertyBtn').textContent = t('catPropertyBtn');
+  document.getElementById('catLandBtn').textContent = t('catLandBtn');
+  document.getElementById('catCarBtn').textContent = t('catCarBtn');
   document.getElementById('cancelBtn').textContent = t('cancel');
   document.getElementById('submitBtn').textContent = t('submit');
   document.getElementById('langToggle').textContent = t('langBtn');
@@ -1201,6 +1282,7 @@ function renderList(){
   const now = Date.now();
   let items = listings.slice().reverse();
   items = items.filter(it => (now - (it.createdAt || 0)) < LISTING_EXPIRY_MS);
+  items = items.filter(it => (it.category || 'property') === currentCategoryFilter);
   if(currentFilter !== 'all'){
     if(currentFilter === 'sale'){
       items = items.filter(it => it.type === 'sale');
@@ -1221,8 +1303,21 @@ function renderList(){
     items = items.filter(it => Number(it.price) <= priceMaxFilter);
   }
   if(searchQuery.trim()){
-    const q = searchQuery.trim().toLowerCase();
-    items = items.filter(it => (it.address||'').toLowerCase().includes(q) || (it.city||'').toLowerCase().includes(q));
+    const words = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const catText = (cat) => cat === 'land' ? 'أراضي أرض الأراضي الأرض'
+      : cat === 'car' ? 'سيارات سيارة السيارات السيارة'
+      : 'شقق منازل شقة منزل عقار عقارات الشقق المنازل';
+    const typeText = (type) => type === 'sale' ? 'بيع للبيع البيع' : 'كراء للكراء إيجار الكراء الإيجار';
+    const durText = (dur) => dur === 'daily' ? 'يومي اليومي يوميا' : dur === 'monthly' ? 'شهري الشهري شهريا' : '';
+    items = items.filter(it => {
+      const hay = [
+        it.address || '', it.city || '',
+        catText(it.category || 'property'),
+        typeText(it.type || 'rent'),
+        durText(it.duration)
+      ].join(' ').toLowerCase();
+      return words.every(w => hay.includes(w));
+    });
   }
   items.sort((a,b) => (b.featured?1:0) - (a.featured?1:0));
   document.getElementById('countTag').textContent = t('countSuffix')(items.length);
@@ -1308,6 +1403,14 @@ function renderList(){
         wrap.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i === idx));
       });
     });
+    const img = wrap.querySelector('.card-photo');
+    if(img){
+      img.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        if(!photos.length) return;
+        openLightbox(photos, parseInt(wrap.dataset.idx, 10) || 0);
+      });
+    }
   });
 
   grid.querySelectorAll('.call-btn').forEach(btn=>{
@@ -1511,6 +1614,11 @@ function closeModal(){
   document.getElementById('typeRentBtn').classList.add('active');
   document.getElementById('typeSaleBtn').classList.remove('active');
   document.getElementById('durationField').style.display = 'block';
+  selectedCategory = 'property';
+  document.querySelectorAll('#formCategoryToggle .cat-opt').forEach(b=>b.classList.remove('active'));
+  document.getElementById('catPropertyBtn').classList.add('active');
+  document.getElementById('typeToggleField').style.display = 'block';
+  updateAddressField();
   document.getElementById('fFeatured').checked = false;
   document.getElementById('featuredLockNote').style.display = 'none';
 }
@@ -1518,6 +1626,47 @@ document.getElementById('openAddBtn').addEventListener('click', requirePublishAc
 document.getElementById('fabAdd').addEventListener('click', requirePublishAccount);
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
+
+// ---- Photo Lightbox ----
+let lightboxPhotos = [];
+let lightboxIdx = 0;
+const lightboxEl = document.getElementById('lightbox');
+const lightboxImgEl = document.getElementById('lightboxImg');
+const lightboxCounterEl = document.getElementById('lightboxCounter');
+
+function renderLightbox(){
+  lightboxImgEl.src = lightboxPhotos[lightboxIdx] || '';
+  const multi = lightboxPhotos.length > 1;
+  document.getElementById('lightboxPrev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('lightboxNext').style.display = multi ? 'flex' : 'none';
+  lightboxCounterEl.textContent = multi ? `${lightboxIdx + 1} / ${lightboxPhotos.length}` : '';
+}
+function openLightbox(photos, startIdx){
+  lightboxPhotos = photos;
+  lightboxIdx = startIdx || 0;
+  renderLightbox();
+  lightboxEl.style.display = 'flex';
+}
+function closeLightbox(){
+  lightboxEl.style.display = 'none';
+  lightboxImgEl.src = '';
+}
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightboxPrev').addEventListener('click', ()=>{
+  lightboxIdx = (lightboxIdx - 1 + lightboxPhotos.length) % lightboxPhotos.length;
+  renderLightbox();
+});
+document.getElementById('lightboxNext').addEventListener('click', ()=>{
+  lightboxIdx = (lightboxIdx + 1) % lightboxPhotos.length;
+  renderLightbox();
+});
+lightboxEl.addEventListener('click', (e)=>{ if(e.target === lightboxEl) closeLightbox(); });
+document.addEventListener('keydown', (e)=>{
+  if(lightboxEl.style.display !== 'flex') return;
+  if(e.key === 'Escape') closeLightbox();
+  else if(e.key === 'ArrowRight') document.getElementById('lightboxNext').click();
+  else if(e.key === 'ArrowLeft') document.getElementById('lightboxPrev').click();
+});
 
 document.querySelectorAll('.dur-opt').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1533,6 +1682,39 @@ document.querySelectorAll('.type-opt').forEach(btn=>{
     btn.classList.add('active');
     selectedType = btn.dataset.type;
     document.getElementById('durationField').style.display = selectedType === 'sale' ? 'none' : 'block';
+  });
+});
+
+function updateAddressField(){
+  const lbl = selectedCategory === 'land' ? t('addrLabelLand') : selectedCategory === 'car' ? t('addrLabelCar') : t('addrLabelProperty');
+  const ph = selectedCategory === 'land' ? t('addrPhLand') : selectedCategory === 'car' ? t('addrPhCar') : t('addrPhProperty');
+  document.getElementById('lblAddr').textContent = lbl;
+  document.getElementById('fAddr').placeholder = ph;
+}
+
+document.querySelectorAll('#formCategoryToggle .cat-opt').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#formCategoryToggle .cat-opt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedCategory = btn.dataset.cat;
+    updateAddressField();
+    if(selectedCategory === 'land'){
+      document.getElementById('typeToggleField').style.display = 'none';
+      document.getElementById('durationField').style.display = 'none';
+      selectedType = 'sale';
+    } else {
+      document.getElementById('typeToggleField').style.display = 'block';
+      document.getElementById('durationField').style.display = selectedType === 'sale' ? 'none' : 'block';
+    }
+  });
+});
+
+document.querySelectorAll('#categoryRow .cat-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#categoryRow .cat-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCategoryFilter = btn.dataset.category;
+    renderList();
   });
 });
 
@@ -1626,8 +1808,9 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
 
   const newListing = {
     name, phone, city, address: addr, price,
-    type: selectedType,
-    duration: selectedType === 'rent' ? selectedDuration : null,
+    category: selectedCategory,
+    type: selectedCategory === 'land' ? 'sale' : selectedType,
+    duration: (selectedCategory !== 'land' && selectedType === 'rent') ? selectedDuration : null,
     photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed
   };
   let ok = true;
@@ -1798,6 +1981,7 @@ loadRequests();
 populateCitySelect();
 populateCityDatalist();
 updateAccountHeaderUI();
+applyLangToDOM();
 </script>
 </body>
 </html>
