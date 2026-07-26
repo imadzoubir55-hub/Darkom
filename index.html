@@ -153,7 +153,30 @@
     margin:-22px 0 18px;
     position:relative;
   }
-  .filter-pills{display:flex;gap:6px;background:var(--white);padding:5px;border-radius:12px;box-shadow:0 4px 16px rgba(28,27,24,0.1);}
+  .filter-pills{display:flex;gap:6px;background:var(--white);padding:5px;border-radius:12px;box-shadow:0 4px 16px rgba(28,27,24,0.1);flex-wrap:wrap;}
+  .price-filter-row{display:flex;gap:8px;margin-top:8px;}
+  .price-filter-row input{
+    flex:1;border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-size:13px;font-family:inherit;background:var(--white);outline:none;
+  }
+  .price-filter-row input:focus{border-color:var(--majorelle);}
+  .fav-btn{
+    position:absolute;top:136px;inset-inline-end:8px;z-index:2;
+    background:rgba(28,27,24,0.45);border:none;border-radius:999px;
+    width:30px;height:30px;font-size:16px;cursor:pointer;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .fav-btn.active{background:#B23A3A;color:#fff;}
+  .new-badge{
+    font-size:10.5px;font-weight:800;border-radius:999px;padding:3px 8px;
+    background:var(--zellige-green);color:#fff;flex-shrink:0;
+  }
+  .share-btn{
+    background:var(--sand);border:1px solid var(--line);color:var(--ink);
+    border-radius:9px;padding:9px 10px;font-size:12.5px;font-weight:700;
+    cursor:pointer;font-family:inherit;flex-shrink:0;
+  }
+  .card.highlight-share{outline:3px solid var(--copper);outline-offset:2px;}
   .pill{
     border:none;background:transparent;border-radius:9px;
     padding:8px 14px;font-size:13px;font-weight:700;color:var(--ink);
@@ -425,10 +448,15 @@
       <button class="pill" data-filter="monthly">شهري</button>
       <button class="pill" data-filter="daily">يومي</button>
       <button class="pill" data-filter="sale">للبيع</button>
+      <button class="pill" data-filter="favorites">♥ <span id="pillFavText">المفضلة</span></button>
     </div>
     <select id="cityFilter" class="pill" style="background:var(--white);box-shadow:0 4px 16px rgba(28,27,24,0.1);border:none;">
       <option value="">كل المدن</option>
     </select>
+  </div>
+  <div class="price-filter-row">
+    <input type="number" id="priceMinInput" placeholder="السعر من">
+    <input type="number" id="priceMaxInput" placeholder="السعر إلى">
   </div>
   <div class="count-tag" id="countTag">...</div>
   <div id="listGrid" class="grid"></div>
@@ -595,11 +623,16 @@ const ADMIN_PASSWORD = 'eddarb2026';
 const ADMIN_WHATSAPP = '212717389598';
 const FREE_LISTING_LIMIT = 2;
 const SUB_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
+const LISTING_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000;
+const NEW_LISTING_MS = 48 * 60 * 60 * 1000;
 
 let LANG = 'ar';
 let currentFilter = 'all';
 let currentCityFilter = '';
 let searchQuery = '';
+let priceMinFilter = null;
+let priceMaxFilter = null;
+let deepLinkHandled = false;
 let selectedDuration = 'monthly';
 let selectedType = 'rent';
 let photoDataUrls = [];
@@ -617,6 +650,8 @@ const STR = {
     pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي', pillSale:'للبيع',
     countSuffix:(n)=> n + ' إعلان متاح',
     lblType:'نوع العرض', typeRent:'للكراء', typeSale:'للبيع', saleFlag:'للبيع',
+    pillFavorites:'المفضلة', priceMinPh:'السعر من', priceMaxPh:'السعر إلى',
+    newBadge:'✨ جديد', shareBtn:'مشاركة', linkCopied:'تم نسخ الرابط! 📋',
     modalTitle:'نشر إعلان جديد', modalSub:'أدخل المعلومات وصور الشقة، وسيظهر إعلانك للجميع في الموقع.',
     lblPhoto:'صور الشقة', photoHint:'اضغط لاختيار الصور',
     lblName:'الاسم', phName:'مثال: محمد', errName:'يجب كتابة الاسم',
@@ -708,6 +743,8 @@ const STR = {
     pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier', pillSale:'À vendre',
     countSuffix:(n)=> n + ' annonce(s) disponible(s)',
     lblType:'Type d\'annonce', typeRent:'À louer', typeSale:'À vendre', saleFlag:'À vendre',
+    pillFavorites:'Favoris', priceMinPh:'Prix min', priceMaxPh:'Prix max',
+    newBadge:'✨ Nouveau', shareBtn:'Partager', linkCopied:'Lien copié ! 📋',
     modalTitle:'Publier une annonce', modalSub:"Remplissez les infos et la photo, votre annonce sera visible par tous.",
     lblPhoto:"Photo du logement", photoHint:'Cliquez pour choisir une photo',
     lblName:'Nom', phName:'ex : Mohamed', errName:'Le nom est requis',
@@ -809,6 +846,9 @@ function applyLangToDOM(){
   pills[1].textContent = t('pillMonthly');
   pills[2].textContent = t('pillDaily');
   pills[3].textContent = t('pillSale');
+  document.getElementById('pillFavText').textContent = t('pillFavorites');
+  document.getElementById('priceMinInput').placeholder = t('priceMinPh');
+  document.getElementById('priceMaxInput').placeholder = t('priceMaxPh');
   document.getElementById('modalTitle').textContent = t('modalTitle');
   document.getElementById('modalSub').textContent = t('modalSub');
   document.getElementById('lblPhoto').textContent = t('lblPhoto');
@@ -875,6 +915,17 @@ document.getElementById('langToggle').addEventListener('click', ()=>{
 });
 
 // ---- Storage ----
+function getFavorites(){
+  try{ return JSON.parse(localStorage.getItem('darkom_favorites') || '[]'); }
+  catch(e){ return []; }
+}
+function toggleFavorite(id){
+  let favs = getFavorites();
+  if(favs.includes(id)) favs = favs.filter(f => f !== id);
+  else favs.push(id);
+  try{ localStorage.setItem('darkom_favorites', JSON.stringify(favs)); }catch(e){}
+  renderList();
+}
 function initListingsListener(){
   try{
     onSnapshot(collection(db, 'listings'), (snap)=>{
@@ -1147,16 +1198,27 @@ function isSubscribed(phone){
 function renderList(){
   populateCityFilter();
   const grid = document.getElementById('listGrid');
+  const now = Date.now();
   let items = listings.slice().reverse();
+  items = items.filter(it => (now - (it.createdAt || 0)) < LISTING_EXPIRY_MS);
   if(currentFilter !== 'all'){
     if(currentFilter === 'sale'){
       items = items.filter(it => it.type === 'sale');
+    } else if(currentFilter === 'favorites'){
+      const favs = getFavorites();
+      items = items.filter(it => favs.includes(it.id));
     } else {
       items = items.filter(it => it.type !== 'sale' && it.duration === currentFilter);
     }
   }
   if(currentCityFilter){
     items = items.filter(it => it.city === currentCityFilter);
+  }
+  if(priceMinFilter !== null && !isNaN(priceMinFilter)){
+    items = items.filter(it => Number(it.price) >= priceMinFilter);
+  }
+  if(priceMaxFilter !== null && !isNaN(priceMaxFilter)){
+    items = items.filter(it => Number(it.price) <= priceMaxFilter);
   }
   if(searchQuery.trim()){
     const q = searchQuery.trim().toLowerCase();
@@ -1188,32 +1250,42 @@ function renderList(){
          </div>`
       : `<div class="card-photo-empty">—</div>`;
     const isSale = it.type === 'sale';
+    const isNewListing = (now - (it.createdAt || 0)) < NEW_LISTING_MS;
+    const favs = getFavorites();
+    const isFav = favs.includes(it.id);
     const durLabel = isSale ? t('saleFlag') : (it.duration === 'monthly' ? t('pillMonthly') : t('pillDaily'));
     const durClass = isSale ? 'sale' : (it.duration === 'monthly' ? 'monthly' : 'daily');
     const perLabel = isSale ? '' : (it.duration === 'monthly' ? t('perMonth') : t('perDay'));
     const waNumber = toWhatsAppNumber(it.phone);
     const featuredFlag = it.featured ? `<span class="featured-flag">✦ ${t('featuredFlag')}</span>` : '';
     const saleFlag = isSale ? `<span class="sale-flag">${t('saleFlag')}</span>` : '';
+    const newBadge = isNewListing ? `<span class="new-badge">${t('newBadge')}</span>` : '';
+    const favBtn = `<button type="button" class="fav-btn ${isFav ? 'active' : ''}" data-listingid="${it.id}">${isFav ? '♥' : '♡'}</button>`;
     const waMsg = encodeURIComponent(
       LANG === 'ar'
         ? `مرحبًا، شفت إعلانك (${it.address}${it.city ? '، ' + it.city : ''}) في موقع دار كوم وحاب نتواصل معاك بخصوصو.`
         : `Bonjour, j'ai vu votre annonce (${it.address}${it.city ? ', ' + it.city : ''}) sur le site Dar Kom et je souhaite vous contacter à ce sujet.`
     );
     return `
-      <div class="card ${it.featured ? 'featured' : ''}">
+      <div class="card ${it.featured ? 'featured' : ''}" data-cardid="${it.id}">
         ${featuredFlag}
         ${saleFlag}
         ${photoHtml}
+        ${favBtn}
         <div class="card-body">
           <div class="badge-row">
             <div class="addr">📍 ${escapeHtml(it.address)}${it.city ? ', ' + escapeHtml(it.city) : ''}</div>
-            <span class="duration-badge ${durClass}">${durLabel}</span>
+            <div style="display:flex;gap:6px;align-items:center;">
+              ${newBadge}
+              <span class="duration-badge ${durClass}">${durLabel}</span>
+            </div>
           </div>
           ${it.name ? `<div class="owner-name">👤 ${escapeHtml(it.name)}</div>` : ''}
           <div class="price">${it.price} <small>د.م ${perLabel}</small></div>
           <div class="card-actions">
             <a class="call-btn" href="tel:${it.phone}">${t('call')}</a>
             <a class="wa-btn" href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" rel="noopener">${t('wa')}</a>
+            <button type="button" class="share-btn" data-listingid="${it.id}">${t('shareBtn')}</button>
           </div>
           <div class="delete-mine-row">
             <button type="button" class="delete-mine-btn" data-listingid="${it.id}">${t('deleteMine')}</button>
@@ -1243,6 +1315,53 @@ function renderList(){
       showToast(t('callReminder'));
     });
   });
+
+  grid.querySelectorAll('.fav-btn').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      toggleFavorite(btn.dataset.listingid);
+    });
+  });
+
+  grid.querySelectorAll('.share-btn').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const id = btn.dataset.listingid;
+      const listing = listings.find(l => l.id === id);
+      if(!listing) return;
+      const shareUrl = `${location.origin}${location.pathname}?listing=${id}`;
+      const shareText = `${listing.address}${listing.city ? ', ' + listing.city : ''} — ${listing.price} د.م`;
+      if(navigator.share){
+        try{ await navigator.share({ title: t('brand'), text: shareText, url: shareUrl }); }
+        catch(e){ /* user cancelled */ }
+      } else {
+        try{
+          await navigator.clipboard.writeText(shareUrl);
+          showToast(t('linkCopied'));
+        }catch(e){
+          showToast(shareUrl);
+        }
+      }
+    });
+  });
+
+  if(!deepLinkHandled){
+    const params = new URLSearchParams(location.search);
+    const targetId = params.get('listing');
+    if(targetId){
+      const targetCard = grid.querySelector(`[data-cardid="${targetId}"]`);
+      if(targetCard){
+        deepLinkHandled = true;
+        setTimeout(()=>{
+          targetCard.scrollIntoView({ behavior:'smooth', block:'center' });
+          targetCard.classList.add('highlight-share');
+          setTimeout(()=> targetCard.classList.remove('highlight-share'), 3000);
+        }, 300);
+      }
+    } else {
+      deepLinkHandled = true;
+    }
+  }
 
   grid.querySelectorAll('.delete-mine-btn').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
@@ -1352,6 +1471,16 @@ document.getElementById('cityFilter').addEventListener('change', (e)=>{
 });
 document.getElementById('searchInput').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter'){ searchQuery = e.target.value; renderList(); }
+});
+document.getElementById('priceMinInput').addEventListener('input', (e)=>{
+  const v = e.target.value.trim();
+  priceMinFilter = v === '' ? null : Number(v);
+  renderList();
+});
+document.getElementById('priceMaxInput').addEventListener('input', (e)=>{
+  const v = e.target.value.trim();
+  priceMaxFilter = v === '' ? null : Number(v);
+  renderList();
 });
 
 // ---- Modal ----
