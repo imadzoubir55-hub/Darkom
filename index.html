@@ -587,6 +587,8 @@
       <div class="admin-list" id="activeSubsList"></div>
       <div class="admin-section-title" id="listingsTitle">العروض المنشورة</div>
       <div class="admin-list" id="listingsMgmtList"></div>
+      <div class="admin-section-title" id="failedTitle">محاولات نشر فاشلة</div>
+      <div class="admin-list" id="failedList"></div>
       <div class="modal-actions">
         <button class="btn-ghost" id="adminCloseBtn">إغلاق</button>
       </div>
@@ -599,7 +601,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
-  getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot
+  getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 // ============================================================
@@ -919,6 +921,20 @@ function getFavorites(){
   try{ return JSON.parse(localStorage.getItem('darkom_favorites') || '[]'); }
   catch(e){ return []; }
 }
+function getViewedIds(){
+  try{ return JSON.parse(localStorage.getItem('darkom_viewed') || '[]'); }
+  catch(e){ return []; }
+}
+function markViewedAndCount(listingId){
+  // Count a view once per visitor (per browser) per listing, like WhatsApp status views.
+  let viewed = getViewedIds();
+  if(viewed.includes(listingId)) return;
+  viewed.push(listingId);
+  try{ localStorage.setItem('darkom_viewed', JSON.stringify(viewed)); }catch(e){}
+  const listing = listings.find(l => l.id === listingId);
+  if(listing) listing.views = (listing.views || 0) + 1; // optimistic local update
+  updateDoc(doc(db, 'listings', listingId), { views: increment(1) }).catch(e=>{});
+}
 function toggleFavorite(id){
   let favs = getFavorites();
   if(favs.includes(id)) favs = favs.filter(f => f !== id);
@@ -966,6 +982,18 @@ async function addRequest(reqData){
 async function updateRequestStatus(reqId, status){
   try{ await updateDoc(doc(db, 'requests', reqId), { status }); return true; }
   catch(e){ return false; }
+}
+let failedAttempts = [];
+async function loadFailedAttempts(){
+  try{
+    const snap = await getDocs(collection(db, 'failedAttempts'));
+    failedAttempts = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  }catch(e){ failedAttempts = []; }
+}
+async function addFailedAttempt(attempt){
+  // Lightweight record (no photos) so we can see who tried to publish and failed,
+  // without risking hitting the same size limit that caused the original failure.
+  try{ await addDoc(collection(db, 'failedAttempts'), attempt); }catch(e){ /* best-effort only */ }
 }
 function normalizePhone(p){ return (p||'').replace(/[^0-9]/g,''); }
 function toWhatsAppNumber(phone){
@@ -1281,7 +1309,10 @@ function renderList(){
             </div>
           </div>
           ${it.name ? `<div class="owner-name">👤 ${escapeHtml(it.name)}</div>` : ''}
-          <div class="price">${it.price} <small>د.م ${perLabel}</small></div>
+          <div class="price-row" style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="price">${it.price} <small>د.م ${perLabel}</small></div>
+            <span class="views-count" style="font-size:12px;color:#8a8470;display:flex;align-items:center;gap:4px;">👁️ ${Number(it.views||0)}</span>
+          </div>
           <div class="card-actions">
             <a class="call-btn" href="tel:${it.phone}">${t('call')}</a>
             <a class="wa-btn" href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" rel="noopener">${t('wa')}</a>
@@ -1293,6 +1324,8 @@ function renderList(){
         </div>
       </div>`;
   }).join('');
+
+  items.forEach(it => markViewedAndCount(it.id));
 
   grid.querySelectorAll('.card-photo-wrap').forEach(wrap=>{
     const listing = listings.find(l => l.id === wrap.dataset.listingid);
@@ -1657,6 +1690,11 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
       ? 'الصور كبيرة بزاف، صيفط تصاور أقل ولا حاول مرة أخرى'
       : "Les photos sont trop volumineuses, réduisez-en le nombre et réessayez";
     errEl.style.display = 'block';
+    addFailedAttempt({
+      name, phone, city, address: addr, price,
+      type: selectedType, photoCount: photoDataUrls.length,
+      approxBytes, error: 'oversized-before-submit', createdAt: Date.now()
+    });
     return;
   }
 
@@ -1668,6 +1706,11 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
     ok = false;
     errDetail = (e && (e.code || e.message)) ? `${e.code || ''} ${e.message || ''}`.trim() : String(e);
     console.error('addDoc listing failed:', e);
+    addFailedAttempt({
+      name, phone, city, address: addr, price,
+      type: selectedType, photoCount: photoDataUrls.length,
+      approxBytes, error: errDetail, createdAt: Date.now()
+    });
   }
   submitBtn.disabled = false;
   submitBtn.textContent = t('submit');
@@ -1730,6 +1773,7 @@ document.getElementById('adminLinkBtn').addEventListener('click', async ()=>{
   if(adminUnlocked){
     await loadSubs();
     await loadRequests();
+    await loadFailedAttempts();
     showAdminPanel();
   } else {
     document.getElementById('adminLoginBox').style.display = 'block';
@@ -1753,6 +1797,7 @@ document.getElementById('adminLoginBtn').addEventListener('click', async ()=>{
   adminUnlocked = true;
   await loadSubs();
   await loadRequests();
+  await loadFailedAttempts();
   showAdminPanel();
 });
 
@@ -1824,6 +1869,27 @@ function renderAdminPanel(){
       }catch(e){
         btn.disabled = false;
       }
+    });
+  });
+  const failedEl = document.getElementById('failedList');
+  const sortedFailed = failedAttempts.slice();
+  failedEl.innerHTML = sortedFailed.length ? sortedFailed.map(f => `
+    <div class="admin-row">
+      <span>${f.name ? escapeHtml(f.name) + ' — ' : ''}${escapeHtml(f.phone||'')}${f.city ? ', ' + escapeHtml(f.city) : ''} — ${escapeHtml(String(f.photoCount||0))} صور — ${f.createdAt ? new Date(f.createdAt).toLocaleString(LANG==='ar'?'ar-MA':'fr-FR') : ''} — ${escapeHtml(f.error||'')}</span>
+      <div class="actions">
+        <button class="reject-btn" data-failedid="${f.id}">${t('deleteListing')}</button>
+      </div>
+    </div>`).join('') : `<p style="font-size:12.5px;color:#8a8470;">لا توجد محاولات فاشلة</p>`;
+
+  failedEl.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.failedid;
+      btn.disabled = true;
+      try{
+        await deleteDoc(doc(db, 'failedAttempts', id));
+        failedAttempts = failedAttempts.filter(f => f.id !== id);
+        renderAdminPanel();
+      }catch(e){ btn.disabled = false; }
     });
   });
 }
