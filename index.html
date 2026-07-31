@@ -571,6 +571,10 @@
     <h2 id="adminModalTitle">لوحة التحكم</h2>
     <div id="adminLoginBox">
       <div class="field">
+        <label id="adminEmailLbl">الإيميل</label>
+        <input type="email" id="adminEmailInput" placeholder="admin@example.com">
+      </div>
+      <div class="field">
         <label id="adminPassLbl">كلمة السر</label>
         <input type="password" id="adminPassInput" placeholder="••••••">
       </div>
@@ -603,6 +607,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/fireba
 import {
   getFirestore, collection, addDoc, getDocs, getDoc, doc, setDoc, updateDoc, deleteDoc, onSnapshot, increment
 } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+import {
+  getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
 
 // ============================================================
 // TODO(Imad): بدل هاد المعلومات بالمعلومات ديال Firebase ديالك
@@ -618,10 +625,39 @@ const firebaseConfig = {
 };
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
+const auth = getAuth(firebaseApp);
 
-// Firestore collections used: 'listings', 'subscriptions', 'requests'
-// TODO(Imad): 1) غيّر كلمة السر هادي. 2) دخل رقم الواتساب ديالك هنا باش يبان للناس فرسالة التأكيد.
-const ADMIN_PASSWORD = 'eddarb2026';
+// ---- Real, server-enforced identity ----
+// Every visitor is signed in anonymously by Firebase Auth. Each listing is
+// tagged with the poster's auth.uid (ownerUid) at creation time, and the
+// Firestore Security Rules (see the rules text Imad must paste in the
+// Firebase Console) only allow a listing to be deleted/edited by the uid
+// that created it. This replaces the old phone-number / code checks, which
+// only ran in the browser and could not actually stop anyone from deleting
+// anyone else's listing.
+let authReady = false;
+let authReadyResolvers = [];
+function whenAuthReady(){
+  return new Promise(resolve=>{
+    if(authReady) return resolve(auth.currentUser);
+    authReadyResolvers.push(resolve);
+  });
+}
+onAuthStateChanged(auth, (user)=>{
+  authReady = true;
+  const resolvers = authReadyResolvers; authReadyResolvers = [];
+  resolvers.forEach(r=>r(user));
+});
+signInAnonymously(auth).catch(e=> console.error('anonymous sign-in failed', e));
+
+// TODO(Imad): 1) دخل لـ Firebase Console > Authentication > Users > Add user،
+// دير حساب بالإيميل وكلمة السر ديالك كأدمين. 2) كوبي الـ UID ديال هاد الحساب
+// وحطو هنا بدل السطر لي تحت. هاد الـ UID هو لي غادي يعطيك صلاحيات الأدمين
+// (حذف أي إعلان، الموافقة على الاشتراكات...) فقواعد الأمان ديال Firestore.
+const ADMIN_UID = 'q5P5fCkmFIZyWQGbPW4qRalfTn03';
+
+// Firestore collections used: 'listings', 'subscriptions', 'requests', 'failedAttempts'
+// TODO(Imad): دخل رقم الواتساب ديالك هنا باش يبان للناس فرسالة التأكيد.
 const ADMIN_WHATSAPP = '212717389598';
 const FREE_LISTING_LIMIT = 2;
 const SUB_DURATION_MS = 30 * 24 * 60 * 60 * 1000;
@@ -710,9 +746,11 @@ const STR = {
     confirmDeleteListing:'هل أنت متأكد من رغبتك في حذف هذا الإعلان؟',
     listingDeleted:'تم حذف الإعلان 🗑️',
     deleteMine:'حذف الإعلان',
-    deleteMinePrompt:'أدخل رقم الهاتف الذي استعملته عند النشر لتأكيد الحذف',
-    deleteMineWrongPhone:'رقم الهاتف غير مطابق',
+    deleteMinePrompt:'أدخل رمز الحذف الذي أعطيناك إياه عند نشر الإعلان لتأكيد الحذف',
+    deleteMineWrongPhone:'الرمز غير مطابق',
     deleteMineSuccess:'تم حذف الإعلان بنجاح 🗑️',
+    deleteNotYours:'هذا الإعلان ليس لك، لا يمكنك حذفه من هذا الجهاز',
+    publishedWithCode:'تم النشر ✅ — احتفظ برمز الحذف: ',
     loginBtn:'تسجيل الدخول',
     logoutBtn:'خروج',
     loginTab:'دخول',
@@ -803,9 +841,11 @@ const STR = {
     confirmDeleteListing:'Voulez-vous vraiment supprimer cette annonce ?',
     listingDeleted:'Annonce supprimée 🗑️',
     deleteMine:"Supprimer l'annonce",
-    deleteMinePrompt:'Entrez le numéro de téléphone utilisé lors de la publication pour confirmer',
-    deleteMineWrongPhone:'Numéro de téléphone incorrect',
+    deleteMinePrompt:'Entrez le code de suppression reçu lors de la publication pour confirmer',
+    deleteMineWrongPhone:'Code incorrect',
     deleteMineSuccess:'Annonce supprimée avec succès 🗑️',
+    deleteNotYours:"Cette annonce n'est pas la vôtre, vous ne pouvez pas la supprimer depuis cet appareil",
+    publishedWithCode:'Publié ✅ — gardez ce code de suppression : ',
     loginBtn:'Connexion',
     logoutBtn:'Déconnexion',
     loginTab:'Connexion',
@@ -920,6 +960,24 @@ document.getElementById('langToggle').addEventListener('click', ()=>{
 function getFavorites(){
   try{ return JSON.parse(localStorage.getItem('darkom_favorites') || '[]'); }
   catch(e){ return []; }
+}
+function genOwnerToken(){
+  // Short random code the poster keeps to prove ownership later, instead of
+  // relying on the phone number (which is already public on the listing).
+  const raw = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+  return raw.replace(/[^a-zA-Z0-9]/g,'').slice(0,8).toUpperCase();
+}
+function getOwnerTokens(){
+  try{ return JSON.parse(localStorage.getItem('darkom_owner_tokens') || '{}'); }
+  catch(e){ return {}; }
+}
+function saveOwnerToken(listingId, token){
+  const map = getOwnerTokens();
+  map[listingId] = token;
+  try{ localStorage.setItem('darkom_owner_tokens', JSON.stringify(map)); }catch(e){}
+}
+function getOwnerToken(listingId){
+  return getOwnerTokens()[listingId] || null;
 }
 function getViewedIds(){
   try{ return JSON.parse(localStorage.getItem('darkom_viewed') || '[]'); }
@@ -1401,22 +1459,23 @@ function renderList(){
       const id = btn.dataset.listingid;
       const listing = listings.find(l => l.id === id);
       if(!listing) return;
-      const isOwnerLoggedIn = currentOwner && normalizePhone(currentOwner.phone) === normalizePhone(listing.phone);
-      if(!isOwnerLoggedIn){
-        const inputPhone = prompt(t('deleteMinePrompt'));
-        if(inputPhone === null) return;
-        if(normalizePhone(inputPhone) !== normalizePhone(listing.phone)){
-          showToast(t('deleteMineWrongPhone'));
-          return;
-        }
-      } else if(!confirm(t('confirmDeleteListing'))){
+      const user = await whenAuthReady();
+      const isRealOwner = user && listing.ownerUid && user.uid === listing.ownerUid;
+      if(!isRealOwner){
+        // Firestore Security Rules only allow the original poster (same
+        // device/browser identity) to delete their own listing. Anyone else
+        // has to go through the site owner.
+        showToast(t('deleteNotYours'));
         return;
       }
+      if(!confirm(t('confirmDeleteListing'))) return;
       btn.disabled = true;
       try{
         await deleteDoc(doc(db, 'listings', id));
         showToast(t('deleteMineSuccess'));
       }catch(e){
+        console.error('delete failed:', e);
+        showToast(t('deleteNotYours'));
         btn.disabled = false;
       }
     });
@@ -1673,11 +1732,14 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
   submitBtn.disabled = true;
   submitBtn.textContent = t('submitting');
 
+  const authUser = await whenAuthReady();
+  const ownerToken = genOwnerToken();
   const newListing = {
     name, phone, city, address: addr, price,
     type: selectedType,
     duration: selectedType === 'rent' ? selectedDuration : null,
-    photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed
+    photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed,
+    ownerToken, ownerUid: authUser ? authUser.uid : null
   };
 
   // Safety net: Firestore rejects documents over ~1MB. Warn instead of
@@ -1700,8 +1762,10 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
 
   let ok = true;
   let errDetail = '';
+  let newListingId = null;
   try{
-    await addDoc(collection(db, 'listings'), newListing);
+    const ref = await addDoc(collection(db, 'listings'), newListing);
+    newListingId = ref.id;
   }catch(e){
     ok = false;
     errDetail = (e && (e.code || e.message)) ? `${e.code || ''} ${e.message || ''}`.trim() : String(e);
@@ -1717,7 +1781,9 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
 
   if(ok){
     closeModal();
+    if(newListingId) saveOwnerToken(newListingId, ownerToken);
     showToast(t('toastPublished'));
+    alert(t('publishedWithCode') + ownerToken);
   } else {
     const base = LANG==='ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez";
     errEl.textContent = errDetail ? `${base} (${errDetail})` : base;
@@ -1778,6 +1844,7 @@ document.getElementById('adminLinkBtn').addEventListener('click', async ()=>{
   } else {
     document.getElementById('adminLoginBox').style.display = 'block';
     document.getElementById('adminPanelBox').style.display = 'none';
+    document.getElementById('adminEmailInput').value = '';
     document.getElementById('adminPassInput').value = '';
     document.getElementById('adminError').style.display = 'none';
   }
@@ -1788,10 +1855,22 @@ document.getElementById('adminCloseBtn').addEventListener('click', closeAdminMod
 adminOverlay.addEventListener('click', (e)=>{ if(e.target === adminOverlay) closeAdminModal(); });
 
 document.getElementById('adminLoginBtn').addEventListener('click', async ()=>{
-  const val = document.getElementById('adminPassInput').value;
-  if(val !== ADMIN_PASSWORD){
-    document.getElementById('adminError').textContent = t('adminWrong');
-    document.getElementById('adminError').style.display = 'block';
+  const email = document.getElementById('adminEmailInput').value.trim();
+  const pass = document.getElementById('adminPassInput').value;
+  const errEl = document.getElementById('adminError');
+  errEl.style.display = 'none';
+  try{
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    if(cred.user.uid !== ADMIN_UID){
+      await signOut(auth);
+      signInAnonymously(auth).catch(e=>console.error(e));
+      errEl.textContent = t('adminWrong');
+      errEl.style.display = 'block';
+      return;
+    }
+  }catch(e){
+    errEl.textContent = t('adminWrong');
+    errEl.style.display = 'block';
     return;
   }
   adminUnlocked = true;
