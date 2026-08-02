@@ -35,6 +35,7 @@
     color:var(--ink);
     font-family:'Cairo','Tajawal',sans-serif;
     min-height:100vh;
+    padding-bottom:64px;
   }
   [dir="rtl"] body{font-family:'Tajawal','Cairo',sans-serif;}
   h1,h2,h3,.display{font-family:'Tajawal',sans-serif;font-weight:900;}
@@ -103,9 +104,9 @@
     background:var(--copper);
     color:var(--white);
     border:none;
-    border-radius:10px;
-    padding:9px 14px;
-    font-size:13px;
+    border-radius:999px;
+    padding:6px 13px;
+    font-size:12.5px;
     font-weight:700;
     cursor:pointer;
     font-family:inherit;
@@ -113,7 +114,10 @@
   }
   .btn-primary:active{transform:translateY(1px);}
   .hero{
-    background:linear-gradient(160deg,var(--majorelle) 0%, var(--majorelle-dark) 100%);
+    background:
+      linear-gradient(160deg, rgba(30,58,95,0.55) 0%, rgba(15,35,64,0.72) 100%),
+      url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%201600%20900%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22sky%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%220%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%23C1663B%22/%3E%3Cstop%20offset%3D%2245%25%22%20stop-color%3D%22%237A2E2E%22/%3E%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23123564%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%221600%22%20height%3D%22900%22%20fill%3D%22url%28%23sky%29%22/%3E%3Ccircle%20cx%3D%221250%22%20cy%3D%22220%22%20r%3D%22110%22%20fill%3D%22%23F4D8A8%22%20opacity%3D%220.85%22/%3E%3Cpath%20d%3D%22M0%2C650%20Q400%2C520%20800%2C620%20T1600%2C580%20L1600%2C900%20L0%2C900%20Z%22%20fill%3D%22%23C99A4A%22%20opacity%3D%220.9%22/%3E%3Cpath%20d%3D%22M0%2C750%20Q450%2C650%20900%2C730%20T1600%2C700%20L1600%2C900%20L0%2C900%20Z%22%20fill%3D%22%238C5B2E%22/%3E%3Cg%20fill%3D%22%232b1d12%22%20opacity%3D%220.85%22%3E%3Crect%20x%3D%22700%22%20y%3D%22600%22%20width%3D%2230%22%20height%3D%22120%22/%3E%3Cpolygon%20points%3D%22715%2C560%20700%2C600%20730%2C600%22/%3E%3Crect%20x%3D%22750%22%20y%3D%22640%22%20width%3D%2240%22%20height%3D%2280%22/%3E%3Crect%20x%3D%22800%22%20y%3D%22610%22%20width%3D%2225%22%20height%3D%22110%22/%3E%3Ccircle%20cx%3D%22812%22%20cy%3D%22600%22%20r%3D%2210%22/%3E%3C/g%3E%3C/svg%3E") center/cover no-repeat,
+      linear-gradient(160deg,var(--majorelle) 0%, var(--majorelle-dark) 100%);
     color:var(--sand);
     padding:34px 18px 46px;
     position:relative;
@@ -130,8 +134,12 @@
   .hero h1{font-size:26px;margin:0 0 8px;position:relative;line-height:1.35;}
   .hero p{font-size:14.5px;opacity:0.88;margin:0 0 18px;position:relative;max-width:520px;}
   .search-row{
-    display:flex;gap:8px;position:relative;
+    display:flex;flex-direction:column;gap:8px;position:relative;
+    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+    border-radius:14px;padding:10px;
   }
+  .search-row-fields{display:flex;gap:8px;}
+  .search-row-fields.two-col > *{flex:1;min-width:0;}
   .search-row input{
     flex:1;
     border:none;
@@ -140,17 +148,58 @@
     font-size:14px;
     font-family:inherit;
     outline:none;
+    min-width:0;
+  }
+  .search-row input[type="date"], .search-row input[type="number"]{
+    color:#333;
   }
   .search-row button{
     background:var(--copper);
     color:#fff;border:none;border-radius:10px;
-    padding:0 18px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
+    padding:12px 18px;font-weight:700;font-size:14.5px;cursor:pointer;font-family:inherit;
+    width:100%;
+  }
+  .category-row{
+    display:flex;gap:8px;overflow-x:auto;margin-top:16px;position:relative;
+    padding-bottom:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .category-row::-webkit-scrollbar{display:none;}
+  .category-pill{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);
+    color:var(--sand);border-radius:14px;padding:10px 14px;font-size:11.5px;font-weight:600;
+    font-family:inherit;cursor:pointer;min-width:64px;white-space:nowrap;
+  }
+  .category-pill:active{transform:translateY(1px);}
+  .category-pill .cat-icon{font-size:20px;}
+  .destinations{margin:18px auto 0;max-width:920px;padding:0 18px;}
+  .destinations h2{font-size:17px;margin:0 0 12px;color:var(--ink,#1C1B18);}
+  .dest-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .dest-scroll::-webkit-scrollbar{display:none;}
+  .dest-card{
+    flex:0 0 auto;width:160px;border-radius:16px;overflow:hidden;position:relative;
+    height:196px;color:#fff;cursor:pointer;
+  }
+  .dest-card .dest-bg{position:absolute;inset:0;}
+  .dest-card .dest-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,0) 30%, rgba(0,0,0,0.78) 100%);
+  }
+  .dest-card .dest-info{position:absolute;bottom:0;inset-inline:0;padding:12px;}
+  .dest-card .dest-name{font-size:15px;font-weight:800;margin:0 0 2px;}
+  .dest-card .dest-tagline{font-size:10.5px;opacity:0.92;margin:0 0 4px;line-height:1.35;}
+  .dest-card .dest-price{font-size:11.5px;font-weight:800;color:#F4D8A8;margin:0 0 2px;}
+  .dest-card .dest-count{font-size:11px;opacity:0.9;margin:0 0 8px;}
+  .dest-card .dest-btn{
+    background:rgba(255,255,255,0.92);color:var(--majorelle-dark);border:none;
+    border-radius:8px;padding:5px 12px;font-size:11.5px;font-weight:700;font-family:inherit;
+    cursor:pointer;
   }
   main{max-width:920px;margin:0 auto;padding:18px;}
   .filters{
     display:flex;gap:8px;flex-wrap:wrap;
     align-items:center;justify-content:space-between;
-    margin:-22px 0 18px;
+    margin:0 0 18px;
     position:relative;
   }
   .filter-pills{display:flex;gap:6px;background:var(--white);padding:5px;border-radius:12px;box-shadow:0 4px 16px rgba(28,27,24,0.1);flex-wrap:wrap;}
@@ -218,6 +267,9 @@
   .price small{font-size:12px;font-weight:700;color:#8a8470;}
   .addr{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px;}
   .owner-name{font-size:12px;color:#8a8470;font-weight:600;}
+  .extra-fields-view{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;}
+  .extra-field-chip{background:#f4efe3;border-radius:8px;padding:4px 8px;font-size:11.5px;color:var(--ink,#1C1B18);}
+  .extra-field-chip b{color:#8a8470;font-weight:700;}
   .card-actions{display:flex;gap:8px;margin-top:auto;padding-top:6px;}
   .card-actions a{
     flex:1;text-align:center;border-radius:9px;padding:9px 6px;font-size:12.5px;font-weight:700;
@@ -255,13 +307,25 @@
   .empty-state{
     text-align:center;padding:50px 20px;color:#6b675f;
   }
-  .empty-state .star-big{width:34px;height:34px;color:var(--copper);margin-bottom:10px;}
+  .empty-state .star-big{font-size:32px;line-height:1;color:var(--copper);margin-bottom:10px;}
   .fab{
-    position:fixed;bottom:18px;left:18px;z-index:30;
+    position:fixed;bottom:74px;right:18px;z-index:30;
     background:var(--copper);color:#fff;border:none;border-radius:999px;
-    width:56px;height:56px;font-size:26px;box-shadow:0 6px 18px rgba(0,0,0,0.25);
+    width:46px;height:46px;font-size:22px;box-shadow:0 6px 18px rgba(0,0,0,0.25);
     cursor:pointer;display:flex;align-items:center;justify-content:center;
   }
+  .bottom-nav{
+    position:fixed;bottom:0;inset-inline:0;z-index:35;
+    background:var(--majorelle);
+    display:flex;box-shadow:0 -2px 10px rgba(0,0,0,0.15);
+  }
+  .bottom-nav-item{
+    flex:1;border:none;background:none;color:rgba(255,255,255,0.72);
+    display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:8px 4px 10px;font-family:inherit;font-size:10.5px;font-weight:700;cursor:pointer;
+  }
+  .bottom-nav-item .bn-icon{font-size:19px;line-height:1;}
+  .bottom-nav-item.active{color:#fff;}
   .modal-overlay{
     position:fixed;inset:0;background:rgba(18,17,15,0.55);z-index:40;
     display:flex;align-items:flex-end;justify-content:center;
@@ -344,6 +408,18 @@
   .checkbox-row input{margin-top:2px;flex-shrink:0;}
   .checkbox-row.locked{color:#8a8470;}
   .lock-note{font-size:11.5px;color:var(--copper);font-weight:700;margin-top:4px;display:block;}
+  #extraFieldsHint{color:#8a8470;font-weight:500;}
+  .extra-presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .extra-preset-btn{
+    background:#f4efe3;border:1px solid #ddd6c8;border-radius:20px;
+    padding:6px 12px;font-size:12.5px;font-family:inherit;cursor:pointer;color:var(--ink,#1C1B18);
+  }
+  .extra-preset-btn.added{opacity:0.4;pointer-events:none;}
+  .extra-field-row{display:flex;gap:6px;margin-top:8px;align-items:center;}
+  .extra-field-row input{flex:1;min-width:0;border:1px solid #ddd6c8;border-radius:8px;padding:9px 10px;font-size:13.5px;font-family:inherit;outline:none;}
+  .extra-field-row input.extra-field-label{flex:0 0 38%;}
+  .extra-field-preset-label{flex:0 0 42%;font-size:13px;font-weight:600;color:var(--ink,#1C1B18);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .extra-field-remove{flex:0 0 auto;background:none;border:none;color:#b04a3f;font-size:18px;cursor:pointer;padding:0 4px;}
   .footer-link{background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;
     font-size:12.5px;font-family:inherit;padding:0;}
   .benefit-list{margin:0 0 16px;padding:0;list-style:none;}
@@ -432,13 +508,38 @@
 
 <div class="hero">
   <div class="hero-stars"></div>
-  <h1 id="heroTitle">الدرب ديالك، كراء بسهولة</h1>
-  <p id="heroSub">شقق و منازل للكراء الشهري أو اليومي، من عند المالكين مباشرة — بلا وسيط.</p>
+  <h1 id="heroTitle">اكتشف المغرب، احجز بسهولة</h1>
+  <p id="heroSub">شقق، فنادق، كراء السيارات، رحلات وأكثر — كلشي فبلاصة وحدة.</p>
   <div class="search-row">
-    <input type="text" id="searchInput" placeholder="فين بغيتي تسكن؟ (الدرب، الحي...)" list="citySuggestions" autocomplete="off">
-    <datalist id="citySuggestions"></datalist>
-    <button id="searchBtn">بحث</button>
+    <div class="search-row-fields">
+      <input type="text" id="searchInput" placeholder="📍 إلى أين تريد السفر؟" list="citySuggestions" autocomplete="off">
+      <datalist id="citySuggestions"></datalist>
+    </div>
+    <div class="search-row-fields two-col">
+      <input type="date" id="checkinInput" aria-label="تاريخ الدخول">
+      <input type="date" id="checkoutInput" aria-label="تاريخ الخروج">
+    </div>
+    <div class="search-row-fields two-col">
+      <input type="number" id="guestsInput" min="1" placeholder="👤 عدد الأشخاص">
+      <input type="number" id="roomsInput" min="1" placeholder="🛏️ عدد الغرف">
+    </div>
+    <button id="searchBtn">🔍 بحث</button>
   </div>
+  <div class="category-row" id="categoryRow">
+    <button class="category-pill" data-cat="apartments"><span class="cat-icon">🏠</span>شقق</button>
+    <button class="category-pill" data-cat="hotels"><span class="cat-icon">🏨</span>فنادق</button>
+    <button class="category-pill" data-cat="riads"><span class="cat-icon">🏡</span>رياضات</button>
+    <button class="category-pill" data-cat="cars"><span class="cat-icon">🚗</span>كراء السيارات</button>
+    <button class="category-pill" data-cat="camps"><span class="cat-icon">🏕️</span>مخيمات</button>
+    <button class="category-pill" data-cat="attractions"><span class="cat-icon">🗺️</span>أماكن سياحية</button>
+    <button class="category-pill" data-cat="trips"><span class="cat-icon">🎒</span>رحلات منظمة</button>
+    <button class="category-pill" data-cat="restaurants"><span class="cat-icon">🍽️</span>مطاعم</button>
+  </div>
+</div>
+
+<div class="destinations" id="destinationsSection">
+  <h2 id="destinationsTitle">أفضل الوجهات</h2>
+  <div class="dest-scroll" id="destScroll"></div>
 </div>
 
 <main>
@@ -466,6 +567,13 @@
   <button class="footer-link" id="adminLinkBtn" style="margin-top:8px;"><span id="adminLinkText">لوحة التحكم</span></button>
 </footer>
 
+<nav class="bottom-nav">
+  <button class="bottom-nav-item active" id="navHome"><span class="bn-icon">🏠</span><span>الرئيسية</span></button>
+  <button class="bottom-nav-item" id="navFav"><span class="bn-icon">❤️</span><span>المفضلة</span></button>
+  <button class="bottom-nav-item" id="navAdd"><span class="bn-icon">➕</span><span>نشر إعلان</span></button>
+  <button class="bottom-nav-item" id="navBookings"><span class="bn-icon">📅</span><span>حجوزاتي</span></button>
+  <button class="bottom-nav-item" id="navAccount"><span class="bn-icon">👤</span><span>حسابي</span></button>
+</nav>
 <button class="fab" id="fabAdd">+</button>
 
 <div class="modal-overlay" id="modalOverlay" style="display:none;">
@@ -523,6 +631,13 @@
         <button type="button" class="dur-opt active" data-dur="monthly" id="durMonthlyBtn">شهري</button>
         <button type="button" class="dur-opt" data-dur="daily" id="durDailyBtn">يومي</button>
       </div>
+    </div>
+
+    <div class="field">
+      <label id="lblExtraFields">معلومات إضافية (اختياري)</label>
+      <span class="lock-note" id="extraFieldsHint">دوز على أي معلومة بغيتي تزيدها، وكتب القيمة ديالها غير</span>
+      <div id="extraFieldsPresets" class="extra-presets"></div>
+      <div id="extraFieldsList"></div>
     </div>
 
     <div class="field">
@@ -674,6 +789,62 @@ let deepLinkHandled = false;
 let selectedDuration = 'monthly';
 let selectedType = 'rent';
 let photoDataUrls = [];
+let extraFields = [];
+const EXTRA_FIELD_PRESETS = [
+  { key:'phone2', label:'📞 رقم هاتف إضافي' },
+  { key:'location', label:'📍 الموقع بالتفصيل' },
+  { key:'rooms', label:'🛏️ عدد الغرف' },
+  { key:'amenities', label:'✨ الخدمات المتوفرة' },
+  { key:'hours', label:'🕒 أوقات الزيارة/الدخول' },
+  { key:'entryPrice', label:'🎫 سعر الدخول' },
+  { key:'rating', label:'⭐ التقييم' },
+  { key:'other', label:'➕ معلومة أخرى' }
+];
+function renderExtraPresets(){
+  const wrap = document.getElementById('extraFieldsPresets');
+  wrap.innerHTML = EXTRA_FIELD_PRESETS.map(p=>{
+    const added = p.key !== 'other' && extraFields.some(f => f.key === p.key);
+    return `<button type="button" class="extra-preset-btn${added ? ' added' : ''}" data-key="${p.key}" data-label="${escapeHtml(p.label)}">${p.label}</button>`;
+  }).join('');
+  wrap.querySelectorAll('.extra-preset-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.dataset.key;
+      if(key === 'other'){
+        extraFields.push({ key:'custom-'+Date.now(), label:'', value:'', custom:true });
+      } else {
+        if(extraFields.some(f => f.key === key)) return;
+        extraFields.push({ key, label:btn.dataset.label, value:'', custom:false });
+      }
+      renderExtraPresets();
+      renderExtraFields();
+    });
+  });
+}
+function renderExtraFields(){
+  const list = document.getElementById('extraFieldsList');
+  list.innerHTML = extraFields.map((f, i) => `
+    <div class="extra-field-row">
+      ${f.custom
+        ? `<input type="text" class="extra-field-label" data-i="${i}" data-k="label" placeholder="اسم المعلومة" value="${escapeHtml(f.label)}">`
+        : `<span class="extra-field-preset-label">${escapeHtml(f.label)}</span>`}
+      <input type="text" data-i="${i}" data-k="value" placeholder="القيمة" value="${escapeHtml(f.value)}">
+      <button type="button" class="extra-field-remove" data-i="${i}">✕</button>
+    </div>`).join('');
+  list.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{
+      const i = Number(inp.dataset.i);
+      extraFields[i][inp.dataset.k] = inp.value;
+    });
+  });
+  list.querySelectorAll('.extra-field-remove').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      extraFields.splice(Number(btn.dataset.i), 1);
+      renderExtraPresets();
+      renderExtraFields();
+    });
+  });
+}
+renderExtraPresets();
 const MAX_PHOTOS = 6;
 let listings = [];
 let subscriptions = {};
@@ -682,9 +853,9 @@ let requests = [];
 const STR = {
   ar:{
     brand:'دار كوم', addBtn:'إعلان جديد',
-    heroTitle:'حيّك، إيجار بسهولة',
-    heroSub:'شقق ومنازل للإيجار الشهري أو اليومي، مباشرة من المالكين — بلا وسيط.',
-    searchPh:'أين تريد أن تسكن؟ (الحي، الشارع...)', searchBtn:'بحث',
+    heroTitle:'اكتشف المغرب، احجز بسهولة',
+    heroSub:'شقق، فنادق، كراء السيارات، رحلات وأكثر — كل شيء في مكان واحد.',
+    searchPh:'📍 إلى أين تريد السفر؟', searchBtn:'🔍 بحث',
     pillAll:'الكل', pillMonthly:'شهري', pillDaily:'يومي', pillSale:'للبيع',
     countSuffix:(n)=> n + ' إعلان متاح',
     lblType:'نوع العرض', typeRent:'للكراء', typeSale:'للبيع', saleFlag:'للبيع',
@@ -742,6 +913,8 @@ const STR = {
     adminCancel:'إلغاء',
     listingsTitle:'الإعلانات المنشورة',
     noListings:'لا يوجد أي إعلان حاليًا',
+    exploreBtn:'استكشف',
+    comingSoon:'هاد القسم غادي يوصل قريباً 🚀',
     deleteListing:'حذف',
     confirmDeleteListing:'هل أنت متأكد من رغبتك في حذف هذا الإعلان؟',
     listingDeleted:'تم حذف الإعلان 🗑️',
@@ -777,9 +950,9 @@ const STR = {
   },
   fr:{
     brand:'Dar Kom', addBtn:'Nouvelle annonce',
-    heroTitle:"Votre quartier, votre location",
-    heroSub:"Appartements et maisons à louer, mensuel ou journalier — directement chez les propriétaires.",
-    searchPh:'Où voulez-vous habiter ? (quartier...)', searchBtn:'Chercher',
+    heroTitle:"Découvrez le Maroc, réservez facilement",
+    heroSub:"Appartements, hôtels, location de voitures, excursions et plus — tout en un seul endroit.",
+    searchPh:'📍 Où voulez-vous voyager ?', searchBtn:'🔍 Chercher',
     pillAll:'Tout', pillMonthly:'Mensuel', pillDaily:'Journalier', pillSale:'À vendre',
     countSuffix:(n)=> n + ' annonce(s) disponible(s)',
     lblType:'Type d\'annonce', typeRent:'À louer', typeSale:'À vendre', saleFlag:'À vendre',
@@ -837,6 +1010,8 @@ const STR = {
     adminCancel:'Annuler',
     listingsTitle:'Annonces publiées',
     noListings:'Aucune annonce pour le moment',
+    exploreBtn:'Explorer',
+    comingSoon:'Bientôt disponible 🚀',
     deleteListing:'Supprimer',
     confirmDeleteListing:'Voulez-vous vraiment supprimer cette annonce ?',
     listingDeleted:'Annonce supprimée 🗑️',
@@ -1283,6 +1458,7 @@ function isSubscribed(phone){
 // ---- Rendering ----
 function renderList(){
   populateCityFilter();
+  renderDestinations();
   const grid = document.getElementById('listGrid');
   const now = Date.now();
   let items = listings.slice().reverse();
@@ -1371,6 +1547,10 @@ function renderList(){
             <div class="price">${it.price} <small>د.م ${perLabel}</small></div>
             <span class="views-count" style="font-size:12px;color:#8a8470;display:flex;align-items:center;gap:4px;">👁️ ${Number(it.views||0)}</span>
           </div>
+          ${Array.isArray(it.extraFields) && it.extraFields.length ? `
+          <div class="extra-fields-view">
+            ${it.extraFields.map(f => `<span class="extra-field-chip"><b>${escapeHtml(f.label)}:</b> ${escapeHtml(f.value)}</span>`).join('')}
+          </div>` : ''}
           <div class="card-actions">
             <a class="call-btn" href="tel:${it.phone}">${t('call')}</a>
             <a class="wa-btn" href="https://wa.me/${waNumber}?text=${waMsg}" target="_blank" rel="noopener">${t('wa')}</a>
@@ -1510,6 +1690,86 @@ const MOROCCO_CITIES = [
   ['تارفاية','Tarfaya'], ['أسا الزاك','Assa-Zag'], ['گلتة زمور','Guelta Zemmour']
 ];
 
+// Featured destinations shown as cards on the homepage. Each uses a distinct
+// gradient (no photo assets available) plus the live count of listings in
+// that city. Ouarzazate stands in for the desert/Merzouga region since it's
+// the closest match already present in MOROCCO_CITIES.
+const DESTINATIONS = [
+  { ar:'مراكش', fr:'Marrakech', grad:'linear-gradient(160deg,#C1663B,#7A2E2E)',
+    img:'https://images.unsplash.com/photo-1553603227-2358aabe821e?auto=format&fit=crop&w=500&q=70',
+    tagAr:'ساحة جامع الفنا والأسواق العتيقة', tagFr:'La place Jemaa el-Fna et les souks' },
+  { ar:'أكادير', fr:'Agadir', grad:'linear-gradient(160deg,#1E7A8C,#123564)',
+    img:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=70',
+    tagAr:'الشاطئ الذهبي وركوب الأمواج', tagFr:'Plage dorée et surf' },
+  { ar:'شفشاون', fr:'Chefchaouen', grad:'linear-gradient(160deg,#2E6FA8,#1B3E66)',
+    img:'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=500&q=70',
+    tagAr:'المدينة الزرقاء الساحرة', tagFr:'La ville bleue emblématique' },
+  { ar:'الصويرة', fr:'Essaouira', grad:'linear-gradient(160deg,#3E8C7A,#1E4B4B)',
+    img:'https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=500&q=70',
+    tagAr:'المرسى الأزرق ورياح المحيط', tagFr:'Le port bleu et les vents atlantiques' },
+  { ar:'ورزازات', fr:'Ouarzazate', grad:'linear-gradient(160deg,#C99A4A,#8C5B2E)',
+    img:'https://images.unsplash.com/photo-1517821362941-f47b6de2ce97?auto=format&fit=crop&w=500&q=70',
+    tagAr:'بوابة الصحراء واستوديوهات السينما', tagFr:'La porte du désert et les studios de cinéma' },
+  { ar:'إفران', fr:'Ifrane', grad:'linear-gradient(160deg,#4A8C5B,#1E4B2E)',
+    img:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=500&q=70',
+    tagAr:'سويسرا الصغيرة، جبال وثلوج', tagFr:'La petite Suisse, montagnes et neige' },
+];
+
+function renderDestinations(){
+  const wrap = document.getElementById('destScroll');
+  if(!wrap) return;
+  wrap.innerHTML = DESTINATIONS.map(d=>{
+    const name = LANG === 'ar' ? d.ar : d.fr;
+    const tagline = LANG === 'ar' ? d.tagAr : d.tagFr;
+    const cityListings = listings.filter(l => l.city === d.ar);
+    const count = cityListings.length;
+    const countLabel = LANG === 'ar' ? `${count} إعلان متاح` : `${count} annonce(s)`;
+    const prices = cityListings.map(l => Number(l.price)).filter(p => !isNaN(p) && p > 0);
+    const minPrice = prices.length ? Math.min(...prices) : null;
+    const priceLabel = minPrice
+      ? (LANG === 'ar' ? `يبدأ من ${minPrice} د.م` : `À partir de ${minPrice} MAD`)
+      : '';
+    return `
+      <div class="dest-card" data-city="${escapeHtml(d.ar)}">
+        <div class="dest-bg" style="background:url('${d.img}') center/cover no-repeat, ${d.grad};"></div>
+        <div class="dest-overlay"></div>
+        <div class="dest-info">
+          <div class="dest-name">${escapeHtml(name)}</div>
+          <div class="dest-tagline">${escapeHtml(tagline)}</div>
+          ${priceLabel ? `<div class="dest-price">${escapeHtml(priceLabel)}</div>` : ''}
+          <div class="dest-count">${escapeHtml(countLabel)}</div>
+          <button class="dest-btn" type="button">${t('exploreBtn')}</button>
+        </div>
+      </div>`;
+  }).join('');
+  wrap.querySelectorAll('.dest-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const city = card.dataset.city;
+      currentCityFilter = city;
+      renderList();
+      const sel = document.getElementById('cityFilter');
+      if(Array.from(sel.options).some(o=>o.value===city)) sel.value = city;
+      document.getElementById('listGrid').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+}
+
+// Category shortcuts under the search bar. Only "apartments" maps to real
+// data today; the rest are placeholders for categories not built yet.
+document.querySelectorAll('.category-pill').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(btn.dataset.cat === 'apartments'){
+      document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+      document.querySelector('.pill[data-filter="all"]').classList.add('active');
+      currentFilter = 'all';
+      renderList();
+      document.getElementById('listGrid').scrollIntoView({ behavior:'smooth', block:'start' });
+    } else {
+      showToast(t('comingSoon'));
+    }
+  });
+});
+
 function populateCitySelect(){
   const sel = document.getElementById('fCity');
   const prevValue = sel.value;
@@ -1596,6 +1856,9 @@ function closeModal(){
   document.getElementById('photoThumbs').innerHTML = '';
   document.getElementById('photoFile').value = '';
   photoDataUrls = [];
+  extraFields = [];
+  renderExtraPresets();
+  renderExtraFields();
   selectedDuration = 'monthly';
   document.getElementById('durMonthlyBtn').classList.add('active');
   document.getElementById('durDailyBtn').classList.remove('active');
@@ -1608,6 +1871,38 @@ function closeModal(){
 }
 document.getElementById('openAddBtn').addEventListener('click', requirePublishAccount);
 document.getElementById('fabAdd').addEventListener('click', requirePublishAccount);
+
+// ---- Bottom nav bar ----
+function setActiveNavItem(id){
+  document.querySelectorAll('.bottom-nav-item').forEach(b=>b.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+document.getElementById('navHome').addEventListener('click', ()=>{
+  setActiveNavItem('navHome');
+  currentFilter = 'all';
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  const allPill = document.querySelector('.pill[data-filter="all"]');
+  if(allPill) allPill.classList.add('active');
+  renderList();
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+document.getElementById('navFav').addEventListener('click', ()=>{
+  setActiveNavItem('navFav');
+  currentFilter = 'favorites';
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  const favPill = document.querySelector('.pill[data-filter="favorites"]');
+  if(favPill) favPill.classList.add('active');
+  renderList();
+  document.getElementById('listGrid').scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('navAdd').addEventListener('click', requirePublishAccount);
+document.getElementById('navBookings').addEventListener('click', ()=>{
+  showToast(t('comingSoon'));
+});
+document.getElementById('navAccount').addEventListener('click', ()=>{
+  document.getElementById('accountBtn').click();
+});
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeModal(); });
 
@@ -1734,12 +2029,16 @@ document.getElementById('submitBtn').addEventListener('click', async ()=>{
 
   const authUser = await whenAuthReady();
   const ownerToken = genOwnerToken();
+  const cleanExtraFields = extraFields
+    .map(f => ({ label: (f.label||'').trim(), value: (f.value||'').trim() }))
+    .filter(f => f.label && f.value);
   const newListing = {
     name, phone, city, address: addr, price,
     type: selectedType,
     duration: selectedType === 'rent' ? selectedDuration : null,
     photos: photoDataUrls, createdAt: Date.now(), featured: wantsFeatured && subscribed,
-    ownerToken, ownerUid: authUser ? authUser.uid : null
+    ownerToken, ownerUid: authUser ? authUser.uid : null,
+    extraFields: cleanExtraFields
   };
 
   // Safety net: Firestore rejects documents over ~1MB. Warn instead of
