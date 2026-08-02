@@ -1398,6 +1398,7 @@ document.getElementById('signupTabBtn').addEventListener('click', ()=>{
 });
 
 document.getElementById('accountSubmitBtn').addEventListener('click', async ()=>{
+ try{
   const name = document.getElementById('accName').value.trim();
   const phone = document.getElementById('accPhone').value.trim();
   const password = document.getElementById('accPassword').value;
@@ -1443,10 +1444,16 @@ document.getElementById('accountSubmitBtn').addEventListener('click', async ()=>
     showToast(isSignup ? t('accountCreated') : t('accountWelcome'));
     if(pendingPublish){ pendingPublish = false; openModal(); }
   }catch(e){
-    errEl.textContent = LANG === 'ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez";
+    console.error('account submit failed:', e);
+    const detail = (e && (e.code || e.message)) ? `${e.code || ''} ${e.message || ''}`.trim() : String(e);
+    errEl.textContent = (LANG === 'ar' ? 'حدثت مشكلة، حاول مرة أخرى' : "Une erreur s'est produite, réessayez") + ' (' + detail + ')';
     errEl.style.display = 'block';
   }
   submitBtn.disabled = false;
+ }catch(outerErr){
+  console.error('account submit crashed:', outerErr);
+  alert('خطأ غير متوقع: ' + (outerErr && outerErr.message ? outerErr.message : outerErr));
+ }
 });
 
 function isSubscribed(phone){
@@ -1900,7 +1907,8 @@ document.getElementById('navAdd').addEventListener('click', requirePublishAccoun
 document.getElementById('navBookings').addEventListener('click', ()=>{
   showToast(t('comingSoon'));
 });
-document.getElementById('navAccount').addEventListener('click', ()=>{
+document.getElementById('navAccount').addEventListener('click', (e)=>{
+  e.stopPropagation();
   document.getElementById('accountBtn').click();
 });
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
